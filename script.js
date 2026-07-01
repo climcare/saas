@@ -213,6 +213,13 @@ function atualizarBarraStatusGeral(status, substatus) {
 }
 
 function atualizarCardMetrica(sufixo, valor, unidade, status) {
+
+console.log("CARD:", sufixo);
+console.log("VALOR:", valor);
+console.log("STATUS:", status);
+
+
+    
     const mapa = {
         Temp: {
             valor: domElements.valTemperature,
@@ -240,6 +247,12 @@ function atualizarCardMetrica(sufixo, valor, unidade, status) {
     const elStatus = mapa[sufixo]?.status;
     const elCard = mapa[sufixo]?.card;
 
+console.log(elVal);
+console.log(elStatus);
+console.log(elCard);
+
+
+    
     if (!elVal || !elStatus || !elCard) return;
 
     if (elVal) {
