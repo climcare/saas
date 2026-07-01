@@ -115,6 +115,7 @@ if (typeof window.AnalisarQualidadeAmbiental === 'function') {
     console.log("=== RETORNO DO ANALYSIS.JS ===");
     console.log(analise);
 
+
     renderizarDashboard(registro, analise);
         }
     } catch (err) {
