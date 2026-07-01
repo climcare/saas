@@ -104,6 +104,8 @@ async function processarCicloMonitoramento() {
         
         if (typeof window.AnalisarQualidadeAmbiental === 'function') {
             const analise = window.AnalisarQualidadeAmbiental(registro);
+            console.log("=== RETORNO DO ANALYSIS.JS ===");
+            console.log(analise);
             renderizarDashboard(registro, analise);
         }
     } catch (err) {
