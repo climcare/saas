@@ -100,15 +100,22 @@ async function processarCicloMonitoramento() {
         }
 
         const registro = data[0];
-        console.log("REGISTRO DO SUPABASE");
-        console.log(registro);
-        atualizarMetadadosDispositivo(registro);
-        
-        if (typeof window.AnalisarQualidadeAmbiental === 'function') {
-            const analise = window.AnalisarQualidadeAmbiental(registro);
-            console.log("=== RETORNO DO ANALYSIS.JS ===");
-            console.log(analise);
-            renderizarDashboard(registro, analise);
+
+console.log("REGISTRO DO SUPABASE");
+console.log(registro);
+
+console.log("ENGINE:", typeof window.AnalisarQualidadeAmbiental);
+
+atualizarMetadadosDispositivo(registro);
+
+if (typeof window.AnalisarQualidadeAmbiental === 'function') {
+
+    const analise = window.AnalisarQualidadeAmbiental(registro);
+
+    console.log("=== RETORNO DO ANALYSIS.JS ===");
+    console.log(analise);
+
+    renderizarDashboard(registro, analise);
         }
     } catch (err) {
         console.error('Erro no ciclo de monitoramento:', err);
