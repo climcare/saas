@@ -213,13 +213,6 @@ function atualizarBarraStatusGeral(status, substatus) {
 }
 
 function atualizarCardMetrica(sufixo, valor, unidade, status) {
-
-console.log("CARD:", sufixo);
-console.log("VALOR:", valor);
-console.log("STATUS:", status);
-
-
-    
     const mapa = {
         Temp: {
             valor: domElements.valTemperature,
@@ -247,16 +240,9 @@ console.log("STATUS:", status);
     const elStatus = mapa[sufixo]?.status;
     const elCard = mapa[sufixo]?.card;
 
-console.log(elVal);
-console.log(elStatus);
-console.log(elCard);
-
-
-    
     if (!elVal || !elStatus || !elCard) return;
 
     if (elVal) {
-        // PEQUENA MELHORIA APLICADA: Proteção adaptativa para Strings vindas do Supabase
         const numero = Number(valor);
         const valFormatado = Number.isFinite(numero)
             ? numero.toFixed(1)
@@ -305,165 +291,4 @@ function renderizarPainelParticulas(reg, metricas) {
         { label: 'PM 10.0', massa: reg.pm10, conta: reg.nc10_0, status: metricas.nc100 }
     ];
 
-    let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
-    dados.forEach(d => {
-        let corIndicador = 'bg-emerald-500';
-        if (d.status === STATUS_ENGINE.ALERTA) corIndicador = 'bg-amber-500';
-        if (d.status === STATUS_ENGINE.CRITICO) corIndicador = 'bg-rose-500';
-
-        const mVal = d.massa !== undefined && d.massa !== null ? parseFloat(d.massa).toFixed(1) : '--';
-        const cVal = d.conta !== undefined && d.conta !== null ? Math.round(parseFloat(d.conta)).toLocaleString('pt-BR') : '--';
-
-        html += `
-            <div class="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-2">
-                <div class="space-y-1 truncate">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full ${corIndicador}"></span>
-                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">${d.label}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium">
-                        Massa: <strong class="text-slate-600 dark:text-slate-400 font-mono">${mVal} µg/m³</strong>
-                    </div>
-                </div>
-                <div class="text-right shrink-0">
-                    <div class="text-sm font-black font-mono text-slate-700 dark:text-slate-300 tracking-tight">${cVal}</div>
-                    <div class="text-[8px] font-black uppercase text-slate-400 tracking-wider">Partículas / L</div>
-                </div>
-            </div>
-        `;
-    });
-    html += `</div>`;
-    container.innerHTML = html;
-}
-
-function atualizarIndicadoresSintomas(sintomas) {
-    const chaves = ['Fadiga', 'Alergia', 'Desconforto'];
-    chaves.forEach(ch => {
-        const pct = sintomas[ch.toLowerCase()] || 0;
-        const txt = document.getElementById(`txtPct${ch}`);
-        const bar = document.getElementById(`barSintoma${ch}`);
-        const ico = document.getElementById(`icoSintoma${ch}`);
-
-        if (txt) txt.textContent = `${pct}%`;
-        if (bar) bar.style.width = `${pct}%`;
-        
-        if (ico) {
-            if (pct > 70) ico.className = "text-sm animate-bounce icon-slot";
-            else ico.className = "text-sm icon-slot";
-        }
-    });
-}
-
-function renderizarRecomendações(plano) {
-    const container = domElements.panelTriagem;
-    if (!container) return;
-
-    if (!plano || plano.length === 0) {
-        container.innerHTML = `
-            <div class="p-4 bg-emerald-500/5 border border-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl text-center text-xs font-bold uppercase tracking-wider">
-                🛡️ Sistema Estabilizado • Nenhuma Intervenção Necessária
-            </div>
-        `;
-        return;
-    }
-
-    let html = '';
-    plano.forEach(p => {
-        let corBorda = 'border-amber-500/20';
-        let corBg = 'bg-amber-500/[0.02]';
-        let tagCor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
-
-        if (p.prioridade === 'CRITICA') {
-            corBorda = 'border-rose-500/20';
-            corBg = 'bg-rose-500/[0.02]';
-            tagCor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
-        }
-
-        html += `
-            <div class="p-3.5 ${corBg} border ${corBorda} rounded-xl flex gap-3 transition-all">
-                <div class="space-y-2 w-full text-left">
-                    <div class="flex justify-between items-center gap-2">
-                        <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${tagCor}">${p.prioridade}</span>
-                        <span class="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">Foco: ${p.parametro}</span>
-                    </div>
-                    <p class="text-xs font-medium text-slate-600 dark:text-slate-300 leading-relaxed">${p.mensagem}</p>
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-// CORREÇÃO DE DIGITAÇÃO: Renomeado cirurgicamente de "obtener..." para "obter..." (Padronização PT-BR)
-function obterTextoMitigacaoBase(param) {
-    const mitigacoes = {
-        "Geral": `⚠️ Dispare rotinas de circulação forçada do ar e minimize temporariamente atividades que levantem partículas.`,
-        "NC0.5": `🔬 Aumente a renovação do ar e verifique possíveis fontes de partículas ultrafinas.
-        Avalie a eficiência da filtragem e as condições de ventilação do ambiente.`,
-        "NC1.0": `🔬 Reforce a renovação do ar e verifique possíveis fontes de aerossóis ou fumaça.
-        Avalie também o desempenho do sistema de filtragem do ambiente.`,
-        "NC2.5": `🌬️ Aumente a ventilação e reduza fontes de partículas em suspensão.
-        Verifique a necessidade de limpeza e a eficiência da filtragem do ar.`,
-        "NC10.0": `🧹 Realize limpeza do ambiente para reduzir o acúmulo de partículas maiores.
-        Verifique entradas de poeira e atividades que favoreçam sua dispersão.`,
-        "Temperatura": `🌡️ Ajuste a climatização para restabelecer a faixa de conforto térmico.
-        Verifique a incidência solar, a ocupação do ambiente e o funcionamento do sistema de climatização.`,
-        "Umidade": `💧 Ajuste as condições de ventilação ou climatização para restabelecer a umidade recomendada.
-        Verifique possíveis fontes de umidade excessiva ou ar excessivamente seco.`,
-        "PontoOrvalho": `💦 Reduza a umidade do ambiente e aumente a circulação de ar para minimizar a condensação.
-        Verifique superfícies frias, isolamento térmico e possíveis sinais de infiltração.`
-    };
-   
-    return mitigacoes[param] ||
-    "🔎 Recomenda-se verificar as condições do ambiente e adotar medidas para restabelecer a qualidade do ar...";
-}
-
-// ============================================================================
-// WORKSPACE CLIM CARE — SISTEMA REATIVO DE NAVEGAÇÃO INTERNA (CONGELADO)
-// ============================================================================
-
-function initializeWorkspaceNavigation() {
-    const abas = document.querySelectorAll('.dashboard-tab');
-    if (!abas.length) return;
-
-    abas.forEach(aba => {
-        aba.addEventListener('click', () => {
-            const viewAlvoId = aba.getAttribute('aria-controls');
-            if (viewAlvoId) {
-                setActiveView(viewAlvoId);
-            }
-        });
-    });
-}
-
-function setActiveView(targetViewId) {
-    const views = document.querySelectorAll('[data-view]');
-    views.forEach(view => {
-        view.classList.add('hidden');
-    });
-
-    const viewAtiva = document.getElementById(targetViewId);
-    if (viewAtiva) {
-        viewAtiva.classList.remove('hidden');
-    }
-
-    updateNavigation(targetViewId);
-}
-
-function updateNavigation(targetViewId) {
-    const abas = document.querySelectorAll('.dashboard-tab');
-
-    abas.forEach(aba => {
-        const controlaEstaView = aba.getAttribute('aria-controls') === targetViewId;
-
-        if (controlaEstaView) {
-            aba.classList.add('active');
-            aba.setAttribute('aria-selected', 'true');
-            aba.setAttribute('tabindex', '0');
-        } else {
-            aba.classList.remove('active');
-            aba.setAttribute('aria-selected', 'false');
-            aba.setAttribute('tabindex', '-1');
-        }
-    });
-}
+    let html = `<div class="grid grid-cols-1 sm
