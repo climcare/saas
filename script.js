@@ -90,7 +90,7 @@ async function processarCicloMonitoramento() {
         const { data, error } = await supabaseClient
             .from('sensor_readings')
             .select('*')
-            .order('timestamp', { ascending: false })
+            .order('created_at', { ascending: false })
             .limit(1);
 
         if (error) throw error;
@@ -118,11 +118,11 @@ function exibirEstadoSemDados() {
 }
 
 function atualizarMetadadosDispositivo(reg) {
-    if (domElements.txtDeviceId) domElements.txtDeviceId.textContent = reg.device_id || '--';
-    if (domElements.txtSignal) domElements.txtSignal.textContent = reg.rssi ? `${reg.rssi} dBm` : '-- dBm';
+    if (domElements.txtDeviceId) domElements.txtDeviceId.textContent = reg.deviceId || '--';
+    if (domElements.txtSignal) domElements.txtSignal.textContent = reg.signalStrength ? `${reg.signalStrength} dBm` : '-- dBm';
     
-    if (reg.timestamp) {
-        const dataObj = new Date(reg.timestamp);
+    if (reg.created_at) {
+        const dataObj = new Date(reg.created_at);
         if (domElements.txtDataAtual) {
             domElements.txtDataAtual.textContent = dataObj.toLocaleDateString('pt-BR');
         }
@@ -255,11 +255,12 @@ function renderizarPainelParticulas(reg, metricas) {
     const container = domElements.panelTriagemMassaQuantidade;
     if (!container) return;
 
+    // Tratamento estrito mapeado de acordo com o novo schema do Supabase
     const dados = [
-        { label: 'PM 0.5', massa: reg.pm05_mass, conta: reg.pm05_count, status: metricas.nc05 },
-        { label: 'PM 1.0', massa: reg.pm10_mass, conta: reg.pm10_count, status: metricas.nc10 },
-        { label: 'PM 2.5', massa: reg.pm25_mass, conta: reg.pm25_count, status: metricas.nc25 },
-        { label: 'PM 10.0', massa: reg.pm100_mass, conta: reg.pm100_count, status: metricas.nc100 }
+        { label: 'PM 0.5', massa: undefined, conta: reg.nc0_5, status: metricas.nc05 },
+        { label: 'PM 1.0', massa: reg.pm1_0, conta: reg.nc1_0, status: metricas.nc10 },
+        { label: 'PM 2.5', massa: reg.pm25, conta: reg.nc2_5, status: metricas.nc25 },
+        { label: 'PM 10.0', massa: reg.pm10, conta: reg.nc10_0, status: metricas.nc100 }
     ];
 
     let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
@@ -268,14 +269,14 @@ function renderizarPainelParticulas(reg, metricas) {
         if (d.status === STATUS_ENGINE.ALERTA) corIndicador = 'bg-amber-500';
         if (d.status === STATUS_ENGINE.CRITICO) corIndicador = 'bg-rose-500';
 
-        const mVal = d.massa !== undefined ? d.massa.toFixed(1) : '--';
-        const cVal = d.conta !== undefined ? Math.round(d.conta).toLocaleString('pt-BR') : '--';
+        const mVal = d.massa !== undefined && d.massa !== null ? parseFloat(d.massa).toFixed(1) : '--';
+        const cVal = d.conta !== undefined && d.conta !== null ? Math.round(parseFloat(d.conta)).toLocaleString('pt-BR') : '--';
 
         html += `
             <div class="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-2">
                 <div class="space-y-1 truncate">
                     <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full ${corIndicador}\"></span>
+                        <span class="w-2 h-2 rounded-full ${corIndicador}"></span>
                         <span class="text-xs font-black text-slate-700 dark:text-slate-300">${d.label}</span>
                     </div>
                     <div class="text-[10px] text-slate-400 font-medium">
@@ -366,17 +367,12 @@ function obterTextoMitigacaoBase(param) {
     return mitigacoes[param] || "🔎 Recomenda-se verificar as condições...";
 }
 
-
 // ============================================================================
 // WORKSPACE CLIM CARE — SISTEMA REATIVO DE NAVEGAÇÃO INTERNA (CONGELADO)
 // ============================================================================
 
-/**
- * Inicializa os ouvintes de evento e o estado nativo da barra de abas.
- */
 function initializeWorkspaceNavigation() {
     const abas = document.querySelectorAll('.dashboard-tab');
-    
     if (!abas.length) return;
 
     abas.forEach(aba => {
@@ -389,10 +385,6 @@ function initializeWorkspaceNavigation() {
     });
 }
 
-/**
- * Controla centralizadamente a ativação da View e o espelhamento nas abas.
- * @param {string} targetViewId - ID da seção correspondente no DOM (ex: 'view-diagnostico')
- */
 function setActiveView(targetViewId) {
     const views = document.querySelectorAll('[data-view]');
     views.forEach(view => {
@@ -407,10 +399,6 @@ function setActiveView(targetViewId) {
     updateNavigation(targetViewId);
 }
 
-/**
- * Atualiza os estados visuais (Design System) e semânticos (WAI-ARIA).
- * @param {string} targetViewId - ID da view associada para cruzamento de dados
- */
 function updateNavigation(targetViewId) {
     const abas = document.querySelectorAll('.dashboard-tab');
 
