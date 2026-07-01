@@ -379,3 +379,9 @@ function gerarConclusaoTecnica(diagnostico) {
             "Os parâmetros monitorados encontram-se dentro das referências adotadas para este ambiente. Nenhuma anomalia relevante foi identificada."
     };
 }
+
+// ====================================================================
+// PUBLICAÇÃO DO ENGINE PARA O WORKSPACE
+// ====================================================================
+
+window.AnalisarQualidadeAmbiental = analisarLeituraQAI;
