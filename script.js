@@ -100,23 +100,11 @@ async function processarCicloMonitoramento() {
         }
 
         const registro = data[0];
-
-console.log("REGISTRO DO SUPABASE");
-console.log(registro);
-
-console.log("ENGINE:", typeof window.AnalisarQualidadeAmbiental);
-
-atualizarMetadadosDispositivo(registro);
-
-if (typeof window.AnalisarQualidadeAmbiental === 'function') {
-
-    const analise = window.AnalisarQualidadeAmbiental(registro);
-
-    console.log("=== RETORNO DO ANALYSIS.JS ===");
-    console.log(analise);
-
-
-    renderizarDashboard(registro, analise);
+        atualizarMetadadosDispositivo(registro);
+        
+        if (typeof window.AnalisarQualidadeAmbiental === 'function') {
+            const analise = window.AnalisarQualidadeAmbiental(registro);
+            renderizarDashboard(registro, analise);
         }
     } catch (err) {
         console.error('Erro no ciclo de monitoramento:', err);
@@ -224,14 +212,44 @@ function atualizarBarraStatusGeral(status, substatus) {
     if (iconSlot) iconSlot.textContent = cfg.icon;
 }
 
-function atualizarCardMetrica(sufixo, valor, unidade, statusEngine) {
-    const elVal = domElements[`val${sufixo}`];
-    const elStatus = domElements[`status${sufixo}`];
-    const elCard = domElements[`card${sufixo}`];
+function atualizarCardMetrica(sufixo, valor, unidade, status) {
+    const mapa = {
+        Temp: {
+            valor: domElements.valTemperature,
+            status: domElements.statusTemp,
+            card: domElements.cardTemp
+        },
+        Hum: {
+            valor: domElements.valHumidity,
+            status: domElements.statusHum,
+            card: domElements.cardHum
+        },
+        CO2: {
+            valor: domElements.valCO2,
+            status: domElements.statusCO2,
+            card: domElements.cardCO2
+        },
+        Orvalho: {
+            valor: domElements.valPontoOrvalho,
+            status: domElements.statusOrvalho,
+            card: domElements.cardOrvalho
+        }
+    };
+
+    const elVal = mapa[sufixo]?.valor;
+    const elStatus = mapa[sufixo]?.status;
+    const elCard = mapa[sufixo]?.card;
+
+    if (!elVal || !elStatus || !elCard) return;
 
     if (elVal) {
+        // PEQUENA MELHORIA APLICADA: Proteção adaptativa para Strings vindas do Supabase
+        const numero = Number(valor);
+        const valFormatado = Number.isFinite(numero)
+            ? numero.toFixed(1)
+            : valor;
+            
         if (valor !== undefined && valor !== null) {
-            const valFormatado = typeof valor === 'number' ? valor.toFixed(1) : valor;
             elVal.innerHTML = `${valFormatado}<span class="text-lg font-light opacity-40">${unidade}</span>`;
         } else {
             elVal.innerHTML = `--.-<span class="text-lg font-light opacity-40">${unidade}</span>`;
@@ -242,15 +260,15 @@ function atualizarCardMetrica(sufixo, valor, unidade, statusEngine) {
     let clsStatus = 'bg-slate-100 dark:bg-slate-800 text-slate-500';
     let txtStatus = 'ANALISANDO';
 
-    if (statusEngine === STATUS_ENGINE.BOM) {
+    if (status === STATUS_ENGINE.BOM) {
         clsCard = 'border-transparent';
         clsStatus = 'bg-emerald-500/10 text-emerald-500';
         txtStatus = 'CONFORME';
-    } else if (statusEngine === STATUS_ENGINE.ALERTA) {
+    } else if (status === STATUS_ENGINE.ALERTA) {
         clsCard = 'border-amber-500/30 dark:border-amber-500/20';
         clsStatus = 'bg-amber-500/10 text-amber-500';
         txtStatus = 'ATENÇÃO';
-    } else if (statusEngine === STATUS_ENGINE.CRITICO) {
+    } else if (status === STATUS_ENGINE.CRITICO) {
         clsCard = 'border-rose-500/30 dark:border-rose-500/20';
         clsStatus = 'bg-rose-500/10 text-rose-500';
         txtStatus = 'CRÍTICO';
@@ -267,7 +285,6 @@ function renderizarPainelParticulas(reg, metricas) {
     const container = domElements.panelTriagemMassaQuantidade;
     if (!container) return;
 
-    // Tratamento estrito mapeado de acordo com o novo schema do Supabase
     const dados = [
         { label: 'PM 0.5', massa: undefined, conta: reg.nc0_5, status: metricas.nc05 },
         { label: 'PM 1.0', massa: reg.pm1_0, conta: reg.nc1_0, status: metricas.nc10 },
@@ -364,19 +381,28 @@ function renderizarRecomendações(plano) {
     container.innerHTML = html;
 }
 
+// CORREÇÃO DE DIGITAÇÃO: Renomeado cirurgicamente de "obtener..." para "obter..." (Padronização PT-BR)
 function obterTextoMitigacaoBase(param) {
     const mitigacoes = {
         "Geral": `⚠️ Dispare rotinas de circulação forçada do ar e minimize temporariamente atividades que levantem partículas.`,
-        "NC0.5": `🔬 Aumente a renovação do ar e verifique possíveis fontes de partículas ultrafinas. Avalie a eficiência da filtragem e as condições de ventilação do ambiente.`,
-        "NC1.0": `🔬 Reforce a renovação do ar e verifique possíveis fontes de aerossóis ou fumaça. Avalie também o desempenho do sistema de filtragem do ambiente.`,
-        "NC2.5": `🌬️ Aumente a ventilação e reduza fontes de partículas em suspensão. Verifique a necessidade de limpeza e a eficiência da filtragem do ar.`,
-        "NC10.0": `🧹 Realize limpeza do ambiente para reduzir o acúmulo de partículas maiores. Verifique entradas de poeira e atividades que favoreçam sua dispersão.`,
-        "Temperatura": `🌡️ Ajuste a climatização para restabelecer a faixa de conforto térmico. Verifique a necessidade de incidência solar, a ocupação do ambiente e o funcionamento do sistema de climatização.`,
-        "Umidade": `💧 Ajuste as condições de ventilação ou climatização para restabelecer a umidade recomendada. Verifique possíveis fontes de umidade excessiva ou ar excessivamente seco.`,
-        "PontoOrvalho": `💦 Reduza a umidade do ambiente e aumente a circulação de ar para minimizar a condensação. Verifique superfícies frias, isolamento térmico e possíveis sinais de infiltração.`
+        "NC0.5": `🔬 Aumente a renovação do ar e verifique possíveis fontes de partículas ultrafinas.
+        Avalie a eficiência da filtragem e as condições de ventilação do ambiente.`,
+        "NC1.0": `🔬 Reforce a renovação do ar e verifique possíveis fontes de aerossóis ou fumaça.
+        Avalie também o desempenho do sistema de filtragem do ambiente.`,
+        "NC2.5": `🌬️ Aumente a ventilação e reduza fontes de partículas em suspensão.
+        Verifique a necessidade de limpeza e a eficiência da filtragem do ar.`,
+        "NC10.0": `🧹 Realize limpeza do ambiente para reduzir o acúmulo de partículas maiores.
+        Verifique entradas de poeira e atividades que favoreçam sua dispersão.`,
+        "Temperatura": `🌡️ Ajuste a climatização para restabelecer a faixa de conforto térmico.
+        Verifique a incidência solar, a ocupação do ambiente e o funcionamento do sistema de climatização.`,
+        "Umidade": `💧 Ajuste as condições de ventilação ou climatização para restabelecer a umidade recomendada.
+        Verifique possíveis fontes de umidade excessiva ou ar excessivamente seco.`,
+        "PontoOrvalho": `💦 Reduza a umidade do ambiente e aumente a circulação de ar para minimizar a condensação.
+        Verifique superfícies frias, isolamento térmico e possíveis sinais de infiltração.`
     };
    
-    return mitigacoes[param] || "🔎 Recomenda-se verificar as condições...";
+    return mitigacoes[param] ||
+    "🔎 Recomenda-se verificar as condições do ambiente e adotar medidas para restabelecer a qualidade do ar...";
 }
 
 // ============================================================================
