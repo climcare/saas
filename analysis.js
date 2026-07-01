@@ -1,4 +1,3 @@
-
 // ====================================================================
 // CONFIGURAÇÃO DOS LIMITES OPERACIONAIS TÉCNICOS (ANVISA / NBR)
 // ====================================================================
@@ -277,6 +276,26 @@ function analisarLeituraQAI(leitura) {
     diagnostico.conclusaoTecnica =
         gerarConclusaoTecnica(diagnostico);
 
+    // =======================================================
+    // CAMADA DE COMPATIBILIDADE COM O WORKSPACE (RC1.4.4)
+    // NÃO ALTERA A LÓGICA DO CORE
+    // =======================================================
+
+    diagnostico.score = diagnostico.scoreGeral;
+
+    diagnostico.metricas = {
+        ...diagnostico.analiseIndividual,
+        pontoOrvalho: "BOM"
+    };
+
+    diagnostico.subStatusGeral =
+        diagnostico.conclusaoTecnica.texto;
+
+    diagnostico.planoMitigacao = [];
+
+    diagnostico.potenciaisSintomas =
+        diagnostico.sintomas;
+
     return diagnostico;
 }
 
@@ -381,7 +400,6 @@ function gerarConclusaoTecnica(diagnostico) {
 }
 
 // ====================================================================
-// PUBLICAÇÃO DO ENGINE PARA O WORKSPACE
+// EXPOSIÇÃO GLOBAL DA ENGINE DO CORE PARA O WORKSPACE
 // ====================================================================
-
 window.AnalisarQualidadeAmbiental = analisarLeituraQAI;
