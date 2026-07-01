@@ -100,6 +100,8 @@ async function processarCicloMonitoramento() {
         }
 
         const registro = data[0];
+        console.log("REGISTRO DO SUPABASE");
+        console.log(registro);
         atualizarMetadadosDispositivo(registro);
         
         if (typeof window.AnalisarQualidadeAmbiental === 'function') {
