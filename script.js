@@ -21,6 +21,7 @@ const STATUS_ENGINE = {
 let supabaseClient = null;
 let domElements = {};
 
+// WINDOW.ONLOAD ORIGINAL DO SISTEMA — UNIFICADO E INTEGRADO
 window.onload = async () => {
     inicializarGerenciadorTema();
     if (typeof supabase !== "undefined") {
@@ -29,466 +30,401 @@ window.onload = async () => {
         await processarCicloMonitoramento();
         setInterval(processarCicloMonitoramento, 15000);
     }
+    // RC1.2B FINAL: Inicialização integrada nativamente ao final do fluxo principal
+    initializeWorkspaceNavigation();
 };
 
 function inicializarGerenciadorTema() {
     const btn = document.getElementById('btnAlternarTema');
     const ico = document.getElementById('icoTema');
     const txt = document.getElementById('txtTema');
-    const htmlElement = document.documentElement;
+    const html = document.documentElement;
 
-    const atualizarTemaUI = (isDark) => {
-        htmlElement.classList.toggle('dark', isDark);
-        if (ico) ico.innerText = isDark ? '☀️' : '🌙';
-        if (txt) txt.innerText = isDark ? 'MODO DIURNO' : 'MODO NOTURNO';
+    if (!btn || !ico || !txt) return;
+
+    const aplicarTema = (isDark) => {
+        if (isDark) {
+            html.classList.add('dark');
+            ico.textContent = '☀️';
+            txt.textContent = 'MODO CLARO';
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            html.classList.remove('dark');
+            ico.textContent = '🌙';
+            txt.textContent = 'MODO NOTURNO';
+            btn.setAttribute('aria-pressed', 'false');
+        }
     };
 
-    const temaSalvo = localStorage.getItem('qai-tema') || 'dark';
-    atualizarTemaUI(temaSalvo === 'dark');
-    if (btn) {
-        btn.addEventListener('click', () => {
-            const ficarEscuro = !htmlElement.classList.contains('dark');
-            atualizarTemaUI(ficarEscuro);
-            localStorage.setItem('qai-tema', ficarEscuro ? 'dark' : 'light');
-        });
-    }
+    const temaSalvo = localStorage.getItem('theme');
+    const prefereDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const iniciarDark = temaSalvo === 'dark' || (!temaSalvo && prefereDark);
+    aplicarTema(iniciarDark);
+
+    btn.addEventListener('click', () => {
+        const virarDark = !html.classList.contains('dark');
+        aplicarTema(virarDark);
+        localStorage.setItem('theme', virarDark ? 'dark' : 'light');
+    });
 }
 
 function inicializarCacheDOM() {
     const ids = [
-        'txtDeviceId', 'txtSignal', 'txtTimestamp', 'lblScoreNumero', 'lblScoreStatus',
-        'barScoreProgresso', 'scoreContainer', 'txtPctFadiga', 'txtPctAlergia', 'txtPctDesconforto',
-        'barSintomaFadiga', 'barSintomaAlergia', 'barSintomaDesconforto', 'icoSintomaFadiga',
-        'icoSintomaAlergia', 'icoSintomaDesconforto', 'valTemperature', 'valHumidity', 'valCO2',
-        'valPontoOrvalho', 'cardTemp', 'statusTemp', 'cardHum', 'statusHum', 'cardCO2', 'statusCO2',
-        'cardOrvalho', 'statusOrvalho', 'alertaInfoCritico', 'panelStatusGeral', 'txtStatusGeral',
-        'panelTriagem', 'panelTriagemMassaQuantidade'
+        'txtDeviceId', 'txtSignal', 'txtDataAtual', 'txtTimestamp',
+        'lblScoreNumero', 'lblScoreStatus', 'barScoreProgresso',
+        'panelStatusGeral', 'txtStatusGeral',
+        'valTemperature', 'statusTemp', 'cardTemp',
+        'valHumidity', 'statusHum', 'cardHum',
+        'valCO2', 'statusCO2', 'cardCO2',
+        'valPontoOrvalho', 'statusOrvalho', 'cardOrvalho',
+        'panelTriagemMassaQuantidade', 'alertaInfoCritico', 'panelTriagem'
     ];
     ids.forEach(id => {
         domElements[id] = document.getElementById(id);
     });
-
-    domElements.bannerCritico = domElements.alertaInfoCritico;
-    domElements.panelDiagnostico = domElements.panelTriagem;
 }
 
 async function processarCicloMonitoramento() {
-    if (!supabaseClient) return;
     try {
-        const { data: leituraBruta, error } = await supabaseClient
-            .from('sensor_readings')
+        if (!supabaseClient) return;
+        const { data, error } = await supabaseClient
+            .from('telemetria_qai')
             .select('*')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-        if (!error && leituraBruta) {
-            const relatorio = typeof analisarLeituraQAI === "function"
-                ?
-                analisarLeituraQAI(leituraBruta)
-                : { valoresAtuais: leituraBruta, statusGeral: STATUS_GERAL.CONFORME, scoreGeral: 100 };
-            atualizarInterfaceVisual(relatorio, leituraBruta);
+            .order('timestamp', { ascending: false })
+            .limit(1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            exibirEstadoSemDados();
+            return;
+        }
+
+        const registro = data[0];
+        atualizarMetadadosDispositivo(registro);
+        
+        if (typeof window.AnalisarQualidadeAmbiental === 'function') {
+            const analise = window.AnalisarQualidadeAmbiental(registro);
+            renderizarDashboard(registro, analise);
         }
     } catch (err) {
-        console.error("Erro no ciclo de monitoramento:", err);
+        console.error('Erro no ciclo de monitoramento:', err);
     }
 }
 
-function atualizarInterfaceVisual(relatorio, leituraBruta = {}) {
-    atualizarCabecalho(relatorio, leituraBruta);
-    atualizarScore(relatorio);
-    atualizarSintomas(relatorio);
-    atualizarCards(relatorio, leituraBruta);
-    atualizarBanner(relatorio);
-    atualizarDiagnostico(relatorio);
-    atualizarParticulas(relatorio, leituraBruta);
-}
-
-function atualizarCabecalho(relatorio, leituraBruta = {}) {
-    const t = relatorio.telemetriaAvancada || {};
-    const dadosBanco = leituraBruta ||
-    {};
-
-    if (domElements.txtDeviceId) domElements.txtDeviceId.innerText = relatorio.dispositivoId || dadosBanco.device_id || '--';
-    if (domElements.txtSignal) domElements.txtSignal.innerText = `${t.sinalRede || dadosBanco.signal || '--'} dBm`;
-    if (domElements.txtTimestamp) {
-        const dataFormatada = new Date(relatorio.carimbotempo || dadosBanco.created_at).toLocaleTimeString('pt-BR');
-        domElements.txtTimestamp.innerText = `⏱️ ATUALIZADO EM: ${dataFormatada}`;
+function exibirEstadoSemDados() {
+    if (domElements.txtStatusGeral) {
+        domElements.txtStatusGeral.textContent = "Sem dados de telemetria disponíveis";
     }
 }
 
-function atualizarScore(relatorio) {
-    const scoreVal = relatorio.scoreGeral !== undefined ?
-    relatorio.scoreGeral : 100;
-    const { lblScoreNumero, lblScoreStatus, barScoreProgresso, scoreContainer } = domElements;
-    if (lblScoreNumero && lblScoreStatus && barScoreProgresso && scoreContainer) {
-        lblScoreNumero.innerText = scoreVal;
-        barScoreProgresso.style.width = `${scoreVal}%`;
-
-        scoreContainer.classList.remove('border-emerald-500', 'bg-emerald-500/5', 'border-amber-500', 'bg-amber-500/5', 'border-rose-500', 'bg-rose-500/5');
-        lblScoreStatus.classList.remove('text-emerald-500', 'text-amber-500', 'text-rose-500');
-        barScoreProgresso.classList.remove('bg-emerald-500', 'bg-amber-500', 'bg-rose-500');
-        if (scoreVal >= 80) {
-            lblScoreStatus.innerText = STATUS.EXCELENTE;
-            lblScoreStatus.classList.add('text-emerald-500');
-            scoreContainer.classList.add('border-emerald-500', 'bg-emerald-500/5');
-            barScoreProgresso.classList.add('bg-emerald-500');
-        } else if (scoreVal >= 50) {
-            lblScoreStatus.innerText = STATUS.ATENCAO;
-            lblScoreStatus.classList.add('text-amber-500');
-            scoreContainer.classList.add('border-amber-500', 'bg-amber-500/5');
-            barScoreProgresso.classList.add('bg-amber-500');
-        } else {
-            lblScoreStatus.innerText = STATUS.CRITICO;
-            lblScoreStatus.classList.add('text-rose-500');
-            scoreContainer.classList.add('border-rose-500', 'bg-rose-500/5');
-            barScoreProgresso.classList.add('bg-rose-500');
-        }
-    }
-}
-
-function atualizarSintomas(relatorio) {
-    if (relatorio.sintomas) {
-        const s = relatorio.sintomas;
-        const atualizarSintoma = (idPct, idBar, idIco, valor, emojiAlto, emojiBaixo) => {
-            if (domElements[idPct]) domElements[idPct].innerText = `${valor}%`;
-            if (domElements[idBar]) domElements[idBar].style.width = `${valor}%`;
-            if (domElements[idIco]) domElements[idIco].innerText = valor > 40 ? emojiAlto : emojiBaixo;
-        };
-        atualizarSintoma('txtPctFadiga', 'barSintomaFadiga', 'icoSintomaFadiga', s.fadiga, "🥱", "💤");
-        atualizarSintoma('txtPctAlergia', 'barSintomaAlergia', 'icoSintomaAlergia', s.alergia, "🚨", "🤧");
-        atualizarSintoma('txtPctDesconforto', 'barSintomaDesconforto', 'icoSintomaDesconforto', s.desconforto, "🥵", "😮‍💨");
-    }
-}
-
-function atualizarCards(relatorio, leituraBruta = {}) {
-    const v = relatorio.valoresAtuais || {};
-    const dadosBanco = leituraBruta ||
-    {};
-
-    if (domElements.valTemperature) {
-        const temp = v.temperature ?
-        v.temperature.toFixed(1) : (dadosBanco.temperature ? Number(dadosBanco.temperature).toFixed(1) : '--.-');
-        domElements.valTemperature.innerHTML = `${temp}<span class="text-xl font-light opacity-40">°C</span>`;
-    }
-
-    if (domElements.valHumidity) {
-        const hum = v.humidity ?
-        v.humidity.toFixed(1) : (dadosBanco.humidity ? Number(dadosBanco.humidity).toFixed(1) : '--.-');
-        domElements.valHumidity.innerHTML = `${hum}<span class="text-xl font-light opacity-40">%</span>`;
-    }
-
-    if (domElements.valCO2) {
-        domElements.valCO2.innerHTML = `<span class="text-slate-900 dark:text-white font-black text-3xl sm:text-4xl">${v.co2 ||
-        dadosBanco.co2 || '----'}</span> <span class="text-base font-light opacity-40">PPM</span>`;
-    }
-
-    if (domElements.valPontoOrvalho) {
-        const valorOrvalho = relatorio.pontoOrvalho ?
-        relatorio.pontoOrvalho.toFixed(1) : '--.-';
-        domElements.valPontoOrvalho.innerHTML = `<span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">${valorOrvalho}</span><span class="text-xl font-light opacity-40">°C</span>`;
-    }
-
-    if (relatorio.analiseIndividual) {
-        pintarCard('cardTemp', 'statusTemp', relatorio.analiseIndividual.temperatura);
-        pintarCard('cardHum', 'statusHum', relatorio.analiseIndividual.umidade);
-        pintarCard('cardCO2', 'statusCO2', relatorio.analiseIndividual.co2);
-        pintarCard('cardOrvalho', 'statusOrvalho', relatorio.analiseIndividual.umidade);
-    }
-}
-
-function atualizarBanner(relatorio) {
-    if (domElements.bannerCritico) {
-        domElements.bannerCritico.classList.toggle('hidden', relatorio.statusGeral !== STATUS_GERAL.CRITICO);
-    }
-}
-
-function atualizarDiagnostico(relatorio) {
-    const { panelStatusGeral, txtStatusGeral, panelDiagnostico } = domElements;
-    if (panelStatusGeral && txtStatusGeral && panelDiagnostico) {
-        if (relatorio.statusGeral === STATUS_GERAL.CONFORME) {
-            panelStatusGeral.className = "md:col-span-7 rounded-2xl py-1.5 px-4 text-center md:text-left shadow-sm border-2 transition-all bg-emerald-500 text-white border-emerald-400 font-bold flex items-center justify-center md:justify-start min-h-[44px]";
-            txtStatusGeral.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-white w-full";
-            txtStatusGeral.innerText = "AMBIENTE DENTRO DOS PARÂMETROS DE REFERÊNCIA";
-            panelDiagnostico.innerHTML = renderDiagnosticoTecnico(relatorio);
-        } else {
-            const critico = relatorio.statusGeral === STATUS_GERAL.CRITICO;
-            panelStatusGeral.className = `md:col-span-7 rounded-2xl py-1.5 px-4 text-center md:text-left shadow-sm border-2 transition-all text-white font-bold flex items-center justify-center md:justify-start min-h-[44px] ${critico ?
-            'bg-rose-600 border-rose-500 animate-pulse' : 'bg-amber-500 border-amber-400'}`;
-            txtStatusGeral.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-white w-full";
-            txtStatusGeral.innerText =
-            critico
-            ?
-            "DESVIOS CRÍTICOS IDENTIFICADOS"
-            : "PARÂMETROS REQUEREM ATENÇÃO";
-            panelDiagnostico.innerHTML = renderListaDiagnosticoTecnico(relatorio);
-        }
-    }
-}
-
-function renderDiagnosticoTecnico(relatorio) {
-    if (relatorio.statusGeral !== STATUS_GERAL.CONFORME) {
-        return "";
-    }
-
-    const conclusaoTecnica = relatorio.conclusaoTecnica || null;
-    return `
-                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-emerald-600 dark:text-emerald-400 font-medium text-xs text-center leading-relaxed">
-                    ✅ ${conclusaoTecnica?.texto ||
-                    "Os parâmetros monitorados encontram-se dentro das referências adotadas para este ambiente. Nenhuma anomalia relevante foi identificada."}
-                </div>`;
-}
-
-function renderListaDiagnosticoTecnico(relatorio) {
-    let htmlAlertas = `
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl space-y-3 shadow-sm">
-                    <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">📋 Diagnóstico Técnico</h3>`;
-    if (relatorio.violacoes && relatorio.violacoes.length > 0) {
-        if (relatorio.violacoes.some(e => e.parametro === "Umidade") && !relatorio.violacoes.some(e => e.parametro === "PontoOrvalho")) {
-            relatorio.violacoes.push({
-                parametro: "PontoOrvalho",
-                valor: relatorio.pontoOrvalho ? relatorio.pontoOrvalho.toFixed(1) : '--',
-                unidade: "°C",
-       
-                gravidade: relatorio.analiseIndividual?.umidade
-            });
-        }
-
-        relatorio.violacoes.forEach(erro => {
-            const eCritico = erro.gravidade === STATUS_ENGINE.CRITICO;
-            const corBorda = eCritico ? 'border-rose-500' : 'border-amber-500';
-            const corTexto = eCritico ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400';
-
-            htmlAlertas += `
-                   
-        <div class="bg-slate-50 dark:bg-slate-950/40 border-l-4 ${corBorda} rounded-xl p-3 shadow-sm transition-all">
-                            <details class="group">
-                                <summary class="flex justify-between items-center cursor-pointer list-none focus:outline-none select-none">
-                   
-                    <div class="space-y-0.5">
-                                        <p class="text-xs font-bold ${corTexto} uppercase tracking-tight">⚠️ ${obterNomeTraduzido(erro.parametro)}</p>
-                                    
-        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Atual: ${erro.valor}${erro.unidade}</p>
-                                    </div>
-                                    <span class="text-[10px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 py-1 rounded font-bold text-slate-500 dark:text-slate-400 group-open:hidden transition-all shadow-sm">🛠️ Ver orientação</span>
-  
-                                   <span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded font-bold text-slate-600 dark:text-slate-300 hidden group-open:inline transition-all">▲ Ocultar</span>
-                                </summary>
-                     
-            <div class="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/80 space-y-2">
-                                    <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 leading-relaxed">${obterMensagemAnvisa(erro.parametro, erro.valor)}</p>
-                                    <div class="bg-sky-500/[0.06] rounded-xl p-3 border 
- border-sky-500/10">
-                                        <p class="text-[9px] font-mono font-black text-sky-600 dark:text-sky-400 uppercase tracking-wider">🛠️ PROTOCOLO DE MITIGAÇÃO :</p>
-                                        <p class="text-xs text-slate-600 dark:text-slate-300 font-medium mt-1 leading-relaxed">${obterMitigacaoAnvisa(erro.parametro)}</p>
-   
-                                  </div>
-                                </div>
-                            </details>
-       
-                    </div>`;
-        });
-    }
-
-    htmlAlertas += `</div>`;
-    return htmlAlertas;
-}
-
-function atualizarParticulas(relatorio, leituraBruta = {}) {
-    const v = relatorio.valoresAtuais ||
-    {};
-    const t = relatorio.telemetriaAvancada || {};
-    const dadosBanco = leituraBruta || {};
-    const m10 = Number(dadosBanco.pm1_0 || v.pm1_0 || v["PM1.0"] || 0);
-    const m25 = Number(dadosBanco.pm25 || v.pm25 || v["PM2.5"] || 0);
-    const m40 = Number(dadosBanco.pm4_0 || v.pm4_0 || v["PM4.0"] || v.pm40 || 0);
-    const m100 = Number(dadosBanco.pm10 || v.pm10 || v["PM10"] || 0);
-
-    const contagem = t.contagemParticulas || {};
-    const q10 = contagem.nc0_5 || dadosBanco.nc0_5 || 0;
-    const q25 = contagem.nc1_0 || dadosBanco.nc1_0 || 0;
-    const q40 = contagem.nc2_5 || dadosBanco.nc2_5 || 0;
-    const q100 = contagem.nc10_0 || dadosBanco.nc10_0 || 0;
-    const avaliarAnomaliaParticula = (massa, contagem, statusContagem, limiteCritico) => {
-        if (!massa && !contagem) return "BOM";
-        if (statusContagem === "CRITICO" || massa > limiteCritico) return "CRITICO";
-        if (statusContagem === "ALERTA" || massa > (limiteCritico * 0.5)) return "ALERTA";
-        return "BOM";
-    };
-    const statusC05  = avaliarAnomaliaParticula(m10, q10, relatorio.analiseIndividual?.nc05, 25);
-    const statusC10  = avaliarAnomaliaParticula(m25, q25, relatorio.analiseIndividual?.nc10, 15);
-    const statusC25  = avaliarAnomaliaParticula(m40, q40, relatorio.analiseIndividual?.nc25 || "BOM", 40);
-    const statusC100 = avaliarAnomaliaParticula(m100, q100, relatorio.analiseIndividual?.nc100, 50);
-    if (domElements.panelTriagemMassaQuantidade) {
-        const tpsRaw = dadosBanco.typical_size || dadosBanco.typicalSize || dadosBanco.tps ||
-        t.tamanhoTipico || 0.45;
-        
-        const getClassColor = (status) => status === "CRITICO" ?
-        "text-rose-500 font-black" : (status === "ALERTA" ? "text-amber-500 font-black" : "text-emerald-500 font-black");
-        const getClassBorder = (status) => status === "CRITICO" ? "border-rose-500/50 bg-rose-500/[0.02]" : (status === "ALERTA" ? "border-amber-500/40 bg-amber-500/[0.02]" : "border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20");
-        domElements.panelTriagemMassaQuantidade.innerHTML = `
-            <div class="space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-1">
-                    <h2 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">🔬 Análise Física de Partículas (Massa × Contagem - NBR 17037)</h2>
-                    <span class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 
- text-[10px] font-mono px-2.5 py-1 rounded-md font-bold border border-slate-200 dark:border-slate-700 text-center tracking-tight">📐 TAMANHO MÉDIO RELEVANTE: ${Number(tpsRaw).toFixed(2)} µm</span>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                    ${renderParticulaCard("Partículas Ultrafinas", m10, q10, getClassBorder(statusC05), getClassColor(statusC05))}
-                    ${renderParticulaCard("Aerossóis e Fumaças", 
-                    m25, q25, getClassBorder(statusC10), getClassColor(statusC10))}
-                    ${renderParticulaCard("Poeira Respirável", m40, q40, getClassBorder(statusC25), getClassColor(statusC25))}
-                    ${renderParticulaCard("Partículas Grossas", m100, q100, getClassBorder(statusC100), getClassColor(statusC100))}
-                </div>
-            </div>`;
-    }
-}
-
-function renderParticulaCard(titulo, massa, contagem, classeBorda, classeCorMassa) {
-    return `
-        <div class="p-3.5 border rounded-xl flex flex-col justify-between text-center ${classeBorda}">
-            <div><p class="text-xs text-slate-800 dark:text-slate-200 font-bold uppercase tracking-tight">${titulo}</p></div>
-            <div class="mt-2 py-2 bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/80 rounded-xl space-y-1">
-                <p class="text-[11px] text-slate-400 font-medium">Massa: <span class="${classeCorMassa}">${massa > 0 ?
-                massa.toFixed(2) : '--'} µg/m³</span></p>
-                <p class="text-[11px] text-slate-400 font-medium">Contagem: <span class="text-sky-500 font-bold">${contagem > 0 ?
-                contagem.toFixed(0) : '--'} pt/cm³</span></p>
-            </div>
-        </div>`;
-}
-
-function pintarCard(cardId, statusId, nivel) {
-    const card = domElements[cardId] || document.getElementById(cardId);
-    const status = domElements[statusId] || document.getElementById(statusId);
-    if (!card || !status) return;
+function atualizarMetadadosDispositivo(reg) {
+    if (domElements.txtDeviceId) domElements.txtDeviceId.textContent = reg.device_id || '--';
+    if (domElements.txtSignal) domElements.txtSignal.textContent = reg.rssi ? `${reg.rssi} dBm` : '-- dBm';
     
-    card.classList.remove('border-emerald-500', 'border-amber-500', 'border-rose-600', 'border-transparent');
-    status.className = "text-[9px] font-black uppercase py-0.5 px-2 rounded w-fit text-white";
-    if (nivel === "BOM") {
-        card.classList.add('border-emerald-500');
-        status.innerText = `🟢 ${STATUS.EXCELENTE}`;
-        status.classList.add('bg-emerald-500');
-    } else if (nivel === "ALERTA") {
-        card.classList.add('border-amber-500');
-        status.innerText = `⚠️ ${STATUS.ATENCAO}`;
-        status.classList.add('bg-amber-500');
-    } else {
-        card.classList.add('border-rose-600');
-        status.innerText = `🚨 ${STATUS.CRITICO}`;
-        status.classList.add('bg-rose-600');
+    if (reg.timestamp) {
+        const dataObj = new Date(reg.timestamp);
+        if (domElements.txtDataAtual) {
+            domElements.txtDataAtual.textContent = dataObj.toLocaleDateString('pt-BR');
+        }
+        if (domElements.txtTimestamp) {
+            domElements.txtTimestamp.textContent = dataObj.toLocaleTimeString('pt-BR');
+        }
     }
 }
 
-function obterNomeTraduzido(param) {
-    const nomes = {
-        "CO2": "Dióxido de Carbono (Renovação do Ar)",
-        "CO": "Monóxido de Carbono (Gás Tóxico)",
-        "VOC": "Compostos Orgânicos Voláteis (VOC)",
-        "PM1.0": "Partículas Ultrafinas (PM1.0)",
-        "PM2.5": "Partículas Finas Inaláveis (PM2.5)",
-        "PM4.0": "Poeira Respirável (PM4.0)",
-        "PM10": "Partículas Grossas (PM10)",
-       
-        "NC0.5": "Contagem de Partículas Ultrafinas",
-        "NC1.0": "Contagem de Partículas Finas",
-        "NC2.5": "Contagem de Partículas Finas",
-        "NC10.0": "Contagem de Partículas Grossas",
-        "Temperatura": "Conforto Térmico",
-        "Umidade": "Umidade do Ambiente",
-        "PontoOrvalho": "Risco de Condensação"
-    };
-    return nomes[param] || param;
+function renderizarDashboard(reg, analise) {
+    atualizarComponenteScore(analise.score);
+    atualizarBarraStatusGeral(analise.statusGeral, analise.subStatusGeral);
+    
+    atualizarCardMetrica('Temp', reg.temperature, '°C', analise.metricas.temperatura);
+    atualizarCardMetrica('Hum', reg.humidity, '%', analise.metricas.umidade);
+    atualizarCardMetrica('CO2', reg.co2, ' PPM', analise.metricas.co2);
+    atualizarCardMetrica('Orvalho', analise.pontoOrvalho, '°C', analise.metricas.pontoOrvalho);
+
+    renderizarPainelParticulas(reg, analise.metricas);
+    
+    if (domElements.alertaInfoCritico) {
+        if (analise.statusGeral === STATUS_GERAL.CRITICO) {
+            domElements.alertaInfoCritico.classList.remove('hidden');
+        } else {
+            domElements.alertaInfoCritico.classList.add('hidden');
+        }
+    }
+
+    atualizarIndicadoresSintomas(analise.potenciaisSintomas);
+    renderizarRecomendações(analise.planoMitigacao);
 }
 
-function obterMensagemAnvisa(param, valor) {
+function atualizarComponenteScore(score) {
+    if (domElements.lblScoreNumero) domElements.lblScoreNumero.textContent = score;
+    if (domElements.barScoreProgresso) domElements.barScoreProgresso.style.width = `${score}%`;
+    
+    let corBorda = 'border-emerald-500';
+    let corTexto = 'text-emerald-500';
+    let bgScore = 'bg-emerald-500/5';
+    let statusTexto = STATUS.EXCELENTE;
 
-    const mensagens = {
+    if (score < 50) {
+        corBorda = 'border-rose-500';
+        corTexto = 'text-rose-500';
+        bgScore = 'bg-rose-500/5';
+        statusTexto = STATUS.CRITICO;
+    } else if (score < 85) {
+        corBorda = 'border-amber-500';
+        corTexto = 'text-amber-500';
+        bgScore = 'bg-amber-500/5';
+        statusTexto = STATUS.ATENCAO;
+    }
 
-        "CO2": `⚠️ A concentração de CO₂ está acima da faixa recomendada.
-        Isso indica renovação insuficiente do ar e acúmulo do ar exalado pelos ocupantes.`,
-
-        "CO": `🚨 Foi detectada concentração de Monóxido de Carbono acima do nível seguro.
-        Essa condição pode indicar entrada de gases provenientes de combustão.`,
-
-        "VOC": `⚠️ A concentração de Compostos Orgânicos Voláteis (VOC) está elevada.
-        Isso pode indicar acúmulo de produtos químicos, solventes ou materiais presentes no ambiente.`,
-
-        "PM1.0": `🚨 Foi identificada elevada concentração de partículas ultrafinas.
-        Essas partículas permanecem suspensas por mais tempo e reduzem a qualidade do ar.`,
-
-        "PM2.5": `🚨 Foi identificada elevada concentração de partículas finas inaláveis.
-        Essa condição pode favorecer desconforto respiratório em ambientes internos.`,
-
-        "PM4.0": `🌬️ Foi observado aumento da concentração de partículas respiráveis, indicando maior presença de poeira em suspensão.`,
-
-        "PM10": `🍂 A concentração de partículas maiores está elevada.
-        Esse comportamento favorece a circulação de poeira, pólen e outros materiais suspensos.`,
-
-        "NC0.5": `🚨 A quantidade de partículas ultrafinas em suspensão está acima do esperado para um ambiente com boa qualidade do ar.`,
-
-        "NC1.0": `🚨 A contagem de partículas finas está elevada, indicando aumento da concentração de aerossóis presentes no ambiente.`,
-
-        "NC2.5": `⚠️ Foi identificado aumento da quantidade de partículas finas inaláveis em suspensão, reduzindo a qualidade ambiental.`,
-
-        "NC10.0": `🍂 Foi observada elevada 
-        quantidade de partículas maiores em suspensão, indicando aumento de poeira e materiais particulados.`,
-
-        "Temperatura": `🌡️ A temperatura está fora da faixa recomendada para proporcionar conforto térmico aos ocupantes.`,
-
-        "Umidade": `💧 A umidade relativa está fora da faixa recomendada.
-        Essa condição pode comprometer o conforto ambiental e favorecer condições inadequadas no ambiente.`,
-
-        "PontoOrvalho": `🚨 As condições atuais aumentam o risco de condensação sobre superfícies frias, favorecendo umidade excessiva e formação de mofo.`
-
-    };
-    return mensagens[param] || "⚠️ Foi identificado um parâmetro ambiental fora da faixa recomendada para ambientes internos.";
+    if (domElements.lblScoreStatus) {
+        domElements.lblScoreStatus.textContent = statusTexto;
+        domElements.lblScoreStatus.className = `text-[9px] sm:text-[10px] font-black uppercase shrink-0 ${corTexto}`;
+    }
+    if (domElements.scoreContainer) {
+        domElements.scoreContainer.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 flex flex-col items-center justify-center shrink-0 transition-all ${corBorda} ${bgScore}`;
+    }
 }
 
-function obterMitigacaoAnvisa(param) {
+function atualizarBarraStatusGeral(status, substatus) {
+    if (!domElements.panelStatusGeral || !domElements.txtStatusGeral) return;
+
+    let cfg = {
+        bg: 'bg-white dark:bg-slate-900',
+        border: 'border-slate-200 dark:border-slate-800',
+        texto: 'text-slate-500 dark:text-slate-400',
+        icon: '🔬'
+    };
+
+    if (status === STATUS_GERAL.CONFORME) {
+        cfg = { bg: 'bg-emerald-500/10 dark:bg-emerald-500/[0.03]', border: 'border-emerald-500/20', texto: 'text-emerald-600 dark:text-emerald-400', icon: '🛡️' };
+    } else if (status === STATUS_GERAL.ATENCAO) {
+        cfg = { bg: 'bg-amber-500/10 dark:bg-amber-500/[0.03]', border: 'border-amber-500/20', texto: 'text-amber-600 dark:text-amber-400', icon: '⚠️' };
+    } else if (status === STATUS_GERAL.CRITICO) {
+        cfg = { bg: 'bg-rose-500/10 dark:bg-rose-500/[0.03]', border: 'border-rose-500/20', texto: 'text-rose-600 dark:text-rose-400', icon: '🚨' };
+    }
+
+    domElements.panelStatusGeral.className = `md:col-span-7 rounded-2xl p-4 shadow-sm border transition-all duration-300 flex items-center justify-between gap-3 ${cfg.bg} ${cfg.border}`;
+    
+    domElements.txtStatusGeral.className = `text-xs font-black uppercase tracking-wider leading-tight ${cfg.texto}`;
+    domElements.txtStatusGeral.innerHTML = `<span class="font-mono opacity-60 mr-1">[${status}]</span> ${substatus}`;
+    
+    const iconSlot = domElements.panelStatusGeral.querySelector('.icon-slot');
+    if (iconSlot) iconSlot.textContent = cfg.icon;
+}
+
+function atualizarCardMetrica(sufixo, valor, unidade, statusEngine) {
+    const elVal = domElements[`val${sufixo}`];
+    const elStatus = domElements[`status${sufixo}`];
+    const elCard = domElements[`card${sufixo}`];
+
+    if (elVal) {
+        if (valor !== undefined && valor !== null) {
+            const valFormatado = typeof valor === 'number' ? valor.toFixed(1) : valor;
+            elVal.innerHTML = `${valFormatado}<span class="text-lg font-light opacity-40">${unidade}</span>`;
+        } else {
+            elVal.innerHTML = `--.-<span class="text-lg font-light opacity-40">${unidade}</span>`;
+        }
+    }
+
+    let clsCard = 'border-transparent';
+    let clsStatus = 'bg-slate-100 dark:bg-slate-800 text-slate-500';
+    let txtStatus = 'ANALISANDO';
+
+    if (statusEngine === STATUS_ENGINE.BOM) {
+        clsCard = 'border-transparent';
+        clsStatus = 'bg-emerald-500/10 text-emerald-500';
+        txtStatus = 'CONFORME';
+    } else if (statusEngine === STATUS_ENGINE.ALERTA) {
+        clsCard = 'border-amber-500/30 dark:border-amber-500/20';
+        clsStatus = 'bg-amber-500/10 text-amber-500';
+        txtStatus = 'ATENÇÃO';
+    } else if (statusEngine === STATUS_ENGINE.CRITICO) {
+        clsCard = 'border-rose-500/30 dark:border-rose-500/20';
+        clsStatus = 'bg-rose-500/10 text-rose-500';
+        txtStatus = 'CRÍTICO';
+    }
+
+    if (elCard) elCard.className = `bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 transition-all flex flex-col justify-between min-h-[125px] ${clsCard}`;
+    if (elStatus) {
+        elStatus.className = `text-[9px] font-black uppercase py-0.5 px-2 rounded w-fit ${clsStatus}`;
+        elStatus.textContent = txtStatus;
+    }
+}
+
+function renderizarPainelParticulas(reg, metricas) {
+    const container = domElements.panelTriagemMassaQuantidade;
+    if (!container) return;
+
+    const dados = [
+        { label: 'PM 0.5', massa: reg.pm05_mass, conta: reg.pm05_count, status: metricas.nc05 },
+        { label: 'PM 1.0', massa: reg.pm10_mass, conta: reg.pm10_count, status: metricas.nc10 },
+        { label: 'PM 2.5', massa: reg.pm25_mass, conta: reg.pm25_count, status: metricas.nc25 },
+        { label: 'PM 10.0', massa: reg.pm100_mass, conta: reg.pm100_count, status: metricas.nc100 }
+    ];
+
+    let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
+    dados.forEach(d => {
+        let corIndicador = 'bg-emerald-500';
+        if (d.status === STATUS_ENGINE.ALERTA) corIndicador = 'bg-amber-500';
+        if (d.status === STATUS_ENGINE.CRITICO) corIndicador = 'bg-rose-500';
+
+        const mVal = d.massa !== undefined ? d.massa.toFixed(1) : '--';
+        const cVal = d.conta !== undefined ? Math.round(d.conta).toLocaleString('pt-BR') : '--';
+
+        html += `
+            <div class="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                <div class="space-y-1 truncate">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full ${corIndicador}\"></span>
+                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">${d.label}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-medium">
+                        Massa: <strong class="text-slate-600 dark:text-slate-400 font-mono">${mVal} µg/m³</strong>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <div class="text-sm font-black font-mono text-slate-700 dark:text-slate-300 tracking-tight">${cVal}</div>
+                    <div class="text-[8px] font-black uppercase text-slate-400 tracking-wider">Partículas / L</div>
+                </div>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+function atualizarIndicadoresSintomas(sintomas) {
+    const chaves = ['Fadiga', 'Alergia', 'Desconforto'];
+    chaves.forEach(ch => {
+        const pct = sintomas[ch.toLowerCase()] || 0;
+        const txt = document.getElementById(`txtPct${ch}`);
+        const bar = document.getElementById(`barSintoma${ch}`);
+        const ico = document.getElementById(`icoSintoma${ch}`);
+
+        if (txt) txt.textContent = `${pct}%`;
+        if (bar) bar.style.width = `${pct}%`;
+        
+        if (ico) {
+            if (pct > 70) ico.className = "text-sm animate-bounce icon-slot";
+            else ico.className = "text-sm icon-slot";
+        }
+    });
+}
+
+function renderizarRecomendações(plano) {
+    const container = domElements.panelTriagem;
+    if (!container) return;
+
+    if (!plano || plano.length === 0) {
+        container.innerHTML = `
+            <div class="p-4 bg-emerald-500/5 border border-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl text-center text-xs font-bold uppercase tracking-wider">
+                🛡️ Sistema Estabilizado • Nenhuma Intervenção Necessária
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    plano.forEach(p => {
+        let corBorda = 'border-amber-500/20';
+        let corBg = 'bg-amber-500/[0.02]';
+        let tagCor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
+
+        if (p.prioridade === 'CRITICA') {
+            corBorda = 'border-rose-500/20';
+            corBg = 'bg-rose-500/[0.02]';
+            tagCor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
+        }
+
+        html += `
+            <div class="p-3.5 ${corBg} border ${corBorda} rounded-xl flex gap-3 transition-all">
+                <div class="space-y-2 w-full text-left">
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${tagCor}">${p.prioridade}</span>
+                        <span class="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">Foco: ${p.parametro}</span>
+                    </div>
+                    <p class="text-xs font-medium text-slate-600 dark:text-slate-300 leading-relaxed">${p.mensagem}</p>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function obterTextoMitigacaoBase(param) {
     const mitigacoes = {
-       "CO2": `🍃 Aumente a renovação do ar abrindo portas, janelas ou ajustando o sistema de ventilação.
-        Verifique se a ocupação do ambiente é compatível com a capacidade de ventilação disponível.`,
-
-        "CO": `🚨 Afaste imediatamente os ocupantes, se necessário, e aumente a ventilação do ambiente.
-        Verifique possíveis fontes de combustão ou entrada de gases externos antes de reutilizar o local.`,
-
-        "VOC": `🧪 Aumente a ventilação do ambiente e reduza o uso de produtos químicos enquanto os níveis permanecerem elevados.
-        Verifique possíveis fontes como tintas, solventes, produtos de limpeza ou mobiliário novo.`,
-
-        "PM1.0": `🌬️ Aumente a renovação do ar e reduza fontes que possam gerar partículas ultrafinas.
-        Verifique a presença de fumaça, processos de combustão ou equipamentos que produzam aerossóis.`,
-
-        "PM2.5": `🌬️ Aumente a ventilação do ambiente e realize limpeza úmida sempre que necessário.
-        Verifique filtros de climatização e possíveis fontes de poeira fina ou fumaça.`,
-
-        "PM4.0": `🧹 Realize limpeza do ambiente e aumente a renovação do ar.
-        Verifique atividades que possam estar elevando a concentração de poeira respirável, indicando maior presença de poeira em suspensão.`,
-
-        "PM10": `🍂 Reduza o acúmulo de poeira realizando limpeza adequada e aumentando a ventilação.
-        Verifique entradas de poeira externa, circulação de pessoas e atividades que levantem partículas.`,
-
-        "NC0.5": `🔬 Aumente a renovação do ar e verifique possíveis fontes de partículas ultrafinas.
-        Avalie a eficiência da filtragem e as condições de ventilação do ambiente.`,
-
-        "NC1.0": `🔬 Reforce a renovação do ar e verifique possíveis fontes de aerossóis ou fumaça.
-        Avalie também o desempenho do sistema de filtragem do ambiente.`,
-
-        "NC2.5": `🌬️ Aumente a ventilação e reduza fontes de partículas em suspensão.
-        Verifique a necessidade de limpeza e a eficiência da filtragem do ar.`,
-
-        "NC10.0": `🧹 Realize limpeza do ambiente para reduzir o acúmulo de partículas maiores.
-        Verifique entradas de poeira e atividades que favoreçam sua dispersão.`,
-
-        "Temperatura": `🌡️ Ajuste a climatização para restabelecer a faixa de conforto térmico.
-        Verifique a incidência solar, a ocupação do ambiente e o funcionamento do sistema de climatização.`,
-
-        "Umidade": `💧 Ajuste as condições de ventilação ou climatização para restabelecer a umidade recomendada.
-        Verifique possíveis fontes de umidade excessiva ou ar excessivamente seco.`,
-
-        "PontoOrvalho": `💦 Reduza a umidade do ambiente e aumente a circulação de ar para minimizar a condensação.
-        Verifique superfícies frias, isolamento térmico e possíveis sinais de infiltração.`
+        "Geral": `⚠️ Dispare rotinas de circulação forçada do ar e minimize temporariamente atividades que levantem partículas.`,
+        "NC0.5": `🔬 Aumente a renovação do ar e verifique possíveis fontes de partículas ultrafinas. Avalie a eficiência da filtragem e as condições de ventilação do ambiente.`,
+        "NC1.0": `🔬 Reforce a renovação do ar e verifique possíveis fontes de aerossóis ou fumaça. Avalie também o desempenho do sistema de filtragem do ambiente.`,
+        "NC2.5": `🌬️ Aumente a ventilação e reduza fontes de partículas em suspensão. Verifique a necessidade de limpeza e a eficiência da filtragem do ar.`,
+        "NC10.0": `🧹 Realize limpeza do ambiente para reduzir o acúmulo de partículas maiores. Verifique entradas de poeira e atividades que favoreçam sua dispersão.`,
+        "Temperatura": `🌡️ Ajuste a climatização para restabelecer a faixa de conforto térmico. Verifique a necessidade de incidência solar, a ocupação do ambiente e o funcionamento do sistema de climatização.`,
+        "Umidade": `💧 Ajuste as condições de ventilação ou climatização para restabelecer a umidade recomendada. Verifique possíveis fontes de umidade excessiva ou ar excessivamente seco.`,
+        "PontoOrvalho": `💦 Reduza a umidade do ambiente e aumente a circulação de ar para minimizar a condensação. Verifique superfícies frias, isolamento térmico e possíveis sinais de infiltração.`
     };
    
-    return mitigacoes[param] ||
-    "🔎 Recomenda-se verificar as condições do ambiente e adotar medidas para restabelecer a qualidade do ar.";
+    return mitigacoes[param] || "🔎 Recomenda-se verificar as condições...";
+}
 
+
+// ============================================================================
+// WORKSPACE CLIM CARE — SISTEMA REATIVO DE NAVEGAÇÃO INTERNA (CONGELADO)
+// ============================================================================
+
+/**
+ * Inicializa os ouvintes de evento e o estado nativo da barra de abas.
+ */
+function initializeWorkspaceNavigation() {
+    const abas = document.querySelectorAll('.dashboard-tab');
+    
+    if (!abas.length) return;
+
+    abas.forEach(aba => {
+        aba.addEventListener('click', () => {
+            const viewAlvoId = aba.getAttribute('aria-controls');
+            if (viewAlvoId) {
+                setActiveView(viewAlvoId);
+            }
+        });
+    });
+}
+
+/**
+ * Controla centralizadamente a ativação da View e o espelhamento nas abas.
+ * @param {string} targetViewId - ID da seção correspondente no DOM (ex: 'view-diagnostico')
+ */
+function setActiveView(targetViewId) {
+    const views = document.querySelectorAll('[data-view]');
+    views.forEach(view => {
+        view.classList.add('hidden');
+    });
+
+    const viewAtiva = document.getElementById(targetViewId);
+    if (viewAtiva) {
+        viewAtiva.classList.remove('hidden');
+    }
+
+    updateNavigation(targetViewId);
+}
+
+/**
+ * Atualiza os estados visuais (Design System) e semânticos (WAI-ARIA).
+ * @param {string} targetViewId - ID da view associada para cruzamento de dados
+ */
+function updateNavigation(targetViewId) {
+    const abas = document.querySelectorAll('.dashboard-tab');
+
+    abas.forEach(aba => {
+        const controlaEstaView = aba.getAttribute('aria-controls') === targetViewId;
+
+        if (controlaEstaView) {
+            aba.classList.add('active');
+            aba.setAttribute('aria-selected', 'true');
+            aba.setAttribute('tabindex', '0');
+        } else {
+            aba.classList.remove('active');
+            aba.setAttribute('aria-selected', 'false');
+            aba.setAttribute('tabindex', '-1');
+        }
+    });
 }
