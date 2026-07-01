@@ -88,7 +88,7 @@ async function processarCicloMonitoramento() {
     try {
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient
-            .from('telemetria_qai')
+            .from('sensor_readings')
             .select('*')
             .order('timestamp', { ascending: false })
             .limit(1);
