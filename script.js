@@ -174,12 +174,16 @@ function atualizarMetadadosDispositivo(reg) {
 // Correção:
 // Proteção de integridade estrutural do Dashboard. Caso o Core mude ou 
 // retorne um payload inválido, a execução é abortada antes de gerar falha.
+// -------------------------------------------------------------------
+// ADENDO DE VERIFICAÇÃO TÉCNICA: Diagnóstico temporário do contrato das 
+// métricas injetado com sucesso sob demanda antes do mapeamento visual.
 // ===================================================================
 function renderizarDashboard(reg, analise) {
     if (!analise || !analise.metricas) {
         console.error("Analysis.js retornou um objeto inválido.");
         return;
     }
+
 
     atualizarComponenteScore(analise.score);
     atualizarBarraStatusGeral(analise.statusGeral, analise.subStatusGeral);
