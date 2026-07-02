@@ -146,6 +146,75 @@
             flex-shrink: 0;
             transition: color 200ms ease;
         }
+
+        .qai-track {
+            position: relative;
+            height: 0.75rem;
+            border-radius: 999px;
+            background: linear-gradient(to right, #22c55e 0 25%, #facc15 25% 50%, #f97316 50% 75%, #b91c1c 75% 100%);
+        }
+
+        #barScoreProgresso {
+            position: absolute;
+            inset: 0 auto 0 0;
+            height: 100%;
+            background: transparent !important;
+            transition: width 700ms ease;
+            min-width: 0;
+        }
+
+        #scoreContainer {
+            position: absolute;
+            right: 0;
+            top: -2.45rem;
+            transform: translateX(50%);
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 999px 999px 999px 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #020812;
+            background: #e2e8f0;
+            border: 3px solid #94a3b8;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+        }
+
+        #scoreContainer::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: -0.55rem;
+            transform: translateX(-50%);
+            width: 0.75rem;
+            height: 0.75rem;
+            background: inherit;
+            border-right: inherit;
+            border-bottom: inherit;
+            rotate: 45deg;
+            border-radius: 0.15rem;
+        }
+
+        #scoreContainer span {
+            position: relative;
+            z-index: 1;
+        }
+
+        #barScoreProgresso.bg-emerald-500 #scoreContainer {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        #barScoreProgresso.bg-amber-500 #scoreContainer {
+            background: #facc15;
+            border-color: #facc15;
+        }
+
+        #barScoreProgresso.bg-rose-500 #scoreContainer {
+            background: #b91c1c;
+            border-color: #b91c1c;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body class="text-slate-100 font-sans antialiased min-h-screen p-3 sm:p-4">
@@ -232,8 +301,8 @@
         </div>
 
         <section id="view-ambiente" data-view class="space-y-3">
-            <section class="glass-card workspace-card grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <article aria-label="Indicador de Score QAI" class="lg:border-r lg:border-slate-700/60 lg:pr-5">
+            <section class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <article class="glass-card workspace-card" aria-label="Indicador de Score QAI">
                     <div class="flex items-center gap-2 mb-4">
                         <h2 class="workspace-title">Índice de Qualidade do Ar (QAI)</h2>
                         <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
@@ -241,14 +310,11 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-5 items-center">
                         <p class="text-sm leading-6 text-slate-300">
-                            O índice combina diversos parâmetros do ar e os compara com referências da OMS, ANVISA e NBR 17037 para indicar o nível de qualidade do ambiente.
+                            O Índice de Qualidade do Ar (QAI) combina múltiplos parâmetros ambientais e compara os resultados com referências da OMS, ANVISA e NBR 17037.
                         </p>
 
                         <div class="space-y-3">
-                            <div class="relative pt-6">
-                                <div id="scoreContainer" class="absolute left-[35%] -top-1 w-11 h-11 rounded-full bg-slate-200 text-slate-950 border-4 border-slate-400 flex items-center justify-center shadow-xl z-10">
-                                    <span id="lblScoreNumero" class="text-lg font-black">--</span>
-                                </div>
+                            <div class="relative pt-8">
                                 <div class="flex justify-between text-xs text-slate-300 mb-2">
                                     <span>0</span>
                                     <span>25</span>
@@ -256,11 +322,12 @@
                                     <span>75</span>
                                     <span>100</span>
                                 </div>
-                                <div class="h-3 rounded-full overflow-hidden bg-slate-800 flex">
-                                    <div id="barScoreProgresso" class="h-full bg-emerald-500 transition-all duration-700" style="width: 0%;"></div>
-                                    <div class="h-full bg-yellow-400 flex-1"></div>
-                                    <div class="h-full bg-orange-500 flex-1"></div>
-                                    <div class="h-full bg-red-700 flex-1"></div>
+                                <div class="qai-track">
+                                    <div id="barScoreProgresso" class="transition-all duration-700" style="width: 0%;">
+                                        <div id="scoreContainer">
+                                            <span id="lblScoreNumero" class="text-lg font-black">--</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -288,7 +355,53 @@
                     </div>
                 </article>
 
-                <article id="panelStatusGeral" role="status" class="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-5 items-center">
+                <article class="glass-card workspace-card">
+                    <div class="flex items-center gap-2 mb-3">
+                        <h2 class="workspace-title">Leituras Atuais</h2>
+                        <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
+                    </div>
+
+                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" aria-label="Métricas individuais em tempo real">
+                        <article id="cardTemp" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                            <div class="text-red-500 mb-2 flex justify-center"><i data-lucide="thermometer" class="w-6 h-6"></i></div>
+                            <div class="text-xl font-black text-white" id="valTemperature">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
+                            <div id="statusTemp" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
+                            <div class="workspace-subtitle mt-2">Ref.: 20 - 24 °C</div>
+                        </article>
+
+                        <article id="cardHum" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                            <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
+                            <div class="text-xl font-black text-white" id="valHumidity">--.-<span class="text-sm font-light opacity-70"> %</span></div>
+                            <div id="statusHum" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
+                            <div class="workspace-subtitle mt-2">Ref.: 40 - 65 %</div>
+                        </article>
+
+                        <article id="cardCO2" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                            <div class="text-slate-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
+                            <div class="text-xl font-black text-white" id="valCO2">---- <span class="text-sm font-light opacity-70">ppm</span></div>
+                            <div id="statusCO2" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
+                            <div class="workspace-subtitle mt-2">Ref.: &lt; 1000 ppm</div>
+                        </article>
+
+                        <article class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                            <div class="text-amber-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
+                            <div class="text-xl font-black text-white">320 <span class="text-sm font-light opacity-70">ppb</span></div>
+                            <div class="mt-2 text-xs font-bold text-slate-300">ATENÇÃO</div>
+                            <div class="workspace-subtitle mt-2">Ref.: &lt; 660 ppb</div>
+                        </article>
+
+                        <article id="cardOrvalho" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                            <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
+                            <div class="text-xl font-black text-white" id="valPontoOrvalho">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
+                            <div id="statusOrvalho" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
+                            <div class="workspace-subtitle mt-2">Risco: Baixo</div>
+                        </article>
+                    </section>
+                </article>
+            </section>
+
+            <section id="panelStatusGeral" role="status" class="glass-card workspace-card">
+                <div class="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-5 items-center">
                     <div class="space-y-3">
                         <h2 class="workspace-title">Conclusão Técnica</h2>
                         <div class="flex gap-3">
@@ -311,55 +424,11 @@
                         <div class="workspace-title text-xs mb-2">Nível de Risco</div>
                         <div class="text-2xl font-black text-orange-500 uppercase">Alto</div>
                     </div>
-                </article>
+                </div>
             </section>
 
             <section class="grid grid-cols-1 xl:grid-cols-[1.55fr_1fr] gap-3">
                 <div class="space-y-3">
-                    <article class="glass-card workspace-card">
-                        <div class="flex items-center gap-2 mb-3">
-                            <h2 class="workspace-title">Leituras Atuais</h2>
-                            <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
-                        </div>
-
-                        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" aria-label="Métricas individuais em tempo real">
-                            <article id="cardTemp" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                                <div class="text-red-500 mb-2 flex justify-center"><i data-lucide="thermometer" class="w-6 h-6"></i></div>
-                                <div class="text-xl font-black text-white" id="valTemperature">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
-                                <div id="statusTemp" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-2">Ref.: 20 - 24 °C</div>
-                            </article>
-
-                            <article id="cardHum" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
-                                <div class="text-xl font-black text-white" id="valHumidity">--.-<span class="text-sm font-light opacity-70"> %</span></div>
-                                <div id="statusHum" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-2">Ref.: 40 - 65 %</div>
-                            </article>
-
-                            <article id="cardCO2" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                                <div class="text-slate-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
-                                <div class="text-xl font-black text-white" id="valCO2">---- <span class="text-sm font-light opacity-70">ppm</span></div>
-                                <div id="statusCO2" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-2">Ref.: &lt; 1000 ppm</div>
-                            </article>
-
-                            <article class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                                <div class="text-amber-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
-                                <div class="text-xl font-black text-white">320 <span class="text-sm font-light opacity-70">ppb</span></div>
-                                <div class="mt-2 text-xs font-bold text-slate-300">ATENÇÃO</div>
-                                <div class="workspace-subtitle mt-2">Ref.: &lt; 660 ppb</div>
-                            </article>
-
-                            <article id="cardOrvalho" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
-                                <div class="text-xl font-black text-white" id="valPontoOrvalho">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
-                                <div id="statusOrvalho" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-2">Risco: Baixo</div>
-                            </article>
-                        </section>
-                    </article>
-
                     <article class="glass-card workspace-card grid grid-cols-[56px_1fr] gap-4 items-center">
                         <div class="w-14 h-14 rounded-full border border-purple-500/40 text-purple-400 flex items-center justify-center">
                             <i data-lucide="brain" class="w-8 h-8"></i>
