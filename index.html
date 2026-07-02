@@ -302,60 +302,46 @@
 
         <section id="view-ambiente" data-view class="space-y-3">
             <section class="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                <article class="glass-card workspace-card" aria-label="Indicador de Score QAI">
+                <article id="cardQAI" class="glass-card workspace-card" aria-label="Indicador de Score QAI">
                     <div class="flex items-center gap-2 mb-4">
                         <h2 class="workspace-title">Índice de Qualidade do Ar (QAI)</h2>
                         <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-5 items-center">
+                    <div class="space-y-5">
                         <p class="text-sm leading-6 text-slate-300">
                             O Índice de Qualidade do Ar (QAI) combina múltiplos parâmetros ambientais e compara os resultados com referências da OMS, ANVISA e NBR 17037.
                         </p>
 
-                        <div class="space-y-3">
-                            <div class="relative pt-8">
-                                <div class="flex justify-between text-xs text-slate-300 mb-2">
-                                    <span>0</span>
-                                    <span>25</span>
-                                    <span>50</span>
-                                    <span>75</span>
-                                    <span>100</span>
-                                </div>
-                                <div class="qai-track">
-                                    <div id="barScoreProgresso" class="transition-all duration-700" style="width: 0%;">
-                                        <div id="scoreContainer">
-                                            <span id="lblScoreNumero" class="text-lg font-black">--</span>
-                                        </div>
-                                    </div>
+                        <div class="flex items-end justify-between gap-4">
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">QAI</div>
+                                <div class="mt-1 flex items-baseline gap-3">
+                                    <span id="lblScoreNumero" class="text-5xl font-black tracking-tight text-white">--</span>
+                                    <span id="lblScoreStatus" class="text-sm font-semibold uppercase text-yellow-400">ANALISANDO...</span>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="grid grid-cols-4 text-center text-xs">
-                                <div>
-                                    <div class="text-emerald-500 font-semibold">BOM</div>
-                                    <div class="text-slate-400 mt-1">0-25</div>
-                                </div>
-                                <div>
-                                    <div class="text-yellow-400 font-semibold">MODERADO</div>
-                                    <div class="text-slate-400 mt-1">25-50</div>
-                                </div>
-                                <div>
-                                    <div class="text-orange-500 font-semibold">RUIM</div>
-                                    <div class="text-slate-400 mt-1">50-75</div>
-                                </div>
-                                <div>
-                                    <div class="text-red-500 font-semibold">CRÍTICO</div>
-                                    <div class="text-slate-400 mt-1">75-100</div>
+                        <div class="space-y-2 pt-1">
+                            <div class="relative h-7">
+                                <div class="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-slate-700"></div>
+                                <div id="barScoreProgresso" class="absolute left-0 top-1/2 h-px -translate-y-1/2 transition-all duration-700" style="width: 0%;">
+                                    <div id="scoreContainer" class="absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 translate-x-1/2 rounded-full border-2 border-slate-950 bg-yellow-400 shadow-lg"></div>
                                 </div>
                             </div>
-
-                            <span id="lblScoreStatus" class="sr-only">ANALISANDO...</span>
+                            <div class="grid grid-cols-5 text-xs text-slate-400">
+                                <span>0</span>
+                                <span class="text-center">25</span>
+                                <span class="text-center">50</span>
+                                <span class="text-center">75</span>
+                                <span class="text-right">100</span>
+                            </div>
                         </div>
                     </div>
                 </article>
 
-                <article class="glass-card workspace-card">
+                <article id="cardLeituras" class="glass-card workspace-card">
                     <div class="flex items-center gap-2 mb-3">
                         <h2 class="workspace-title">Leituras Atuais</h2>
                         <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
