@@ -147,16 +147,17 @@
             transition: color 200ms ease;
         }
 
-        .qai-track {
+        .qai-scale-line {
             position: relative;
-            height: 0.75rem;
+            height: 2px;
             border-radius: 999px;
             background: linear-gradient(to right, #22c55e 0 25%, #facc15 25% 50%, #f97316 50% 75%, #b91c1c 75% 100%);
         }
 
         #barScoreProgresso {
             position: absolute;
-            inset: 0 auto 0 0;
+            left: 0;
+            top: 0;
             height: 100%;
             background: transparent !important;
             transition: width 700ms ease;
@@ -166,54 +167,61 @@
         #scoreContainer {
             position: absolute;
             right: 0;
-            top: -2.45rem;
+            bottom: 0;
             transform: translateX(50%);
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: 999px 999px 999px 0.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #facc15;
+            border-color: currentColor;
+            background: transparent !important;
+            box-shadow: none;
+        }
+
+        #scoreContainer.border-emerald-500 {
+            color: #22c55e;
+        }
+
+        #scoreContainer.border-amber-500 {
+            color: #facc15;
+        }
+
+        #scoreContainer.border-rose-500 {
+            color: #b91c1c;
+        }
+
+        #scoreContainer #lblScoreNumero {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #020812;
-            background: #e2e8f0;
-            border: 3px solid #94a3b8;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+            min-width: 2.35rem;
+            height: 1.65rem;
+            padding: 0 0.45rem;
+            border: 1px solid currentColor;
+            border-radius: 0.5rem;
+            background: rgba(8, 18, 31, 0.94);
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-weight: 900;
+            line-height: 1;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+        }
+
+        #scoreContainer::before {
+            content: "";
+            width: 0.72rem;
+            height: 0.72rem;
+            margin-top: 0.35rem;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 18px currentColor;
         }
 
         #scoreContainer::after {
             content: "";
-            position: absolute;
-            left: 50%;
-            bottom: -0.55rem;
-            transform: translateX(-50%);
-            width: 0.75rem;
-            height: 0.75rem;
-            background: inherit;
-            border-right: inherit;
-            border-bottom: inherit;
-            rotate: 45deg;
-            border-radius: 0.15rem;
-        }
-
-        #scoreContainer span {
-            position: relative;
-            z-index: 1;
-        }
-
-        #barScoreProgresso.bg-emerald-500 #scoreContainer {
-            background: #22c55e;
-            border-color: #22c55e;
-        }
-
-        #barScoreProgresso.bg-amber-500 #scoreContainer {
-            background: #facc15;
-            border-color: #facc15;
-        }
-
-        #barScoreProgresso.bg-rose-500 #scoreContainer {
-            background: #b91c1c;
-            border-color: #b91c1c;
-            color: #ffffff;
+            width: 2px;
+            height: 1.2rem;
+            background: currentColor;
         }
     </style>
 </head>
@@ -313,21 +321,21 @@
                             O Índice de Qualidade do Ar (QAI) combina múltiplos parâmetros ambientais e compara os resultados com referências da OMS, ANVISA e NBR 17037.
                         </p>
 
-                        <div class="flex items-end justify-between gap-4">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">QAI</div>
-                                <div class="mt-1 flex items-baseline gap-3">
-                                    <span id="lblScoreNumero" class="text-5xl font-black tracking-tight text-white">--</span>
-                                    <span id="lblScoreStatus" class="text-sm font-semibold uppercase text-yellow-400">ANALISANDO...</span>
-                                </div>
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">QAI</div>
+                            <div class="mt-1 flex items-baseline gap-3">
+                                <span class="text-5xl font-black tracking-tight text-white">35</span>
+                                <span id="lblScoreStatus" class="text-sm font-semibold uppercase text-yellow-400">ANALISANDO...</span>
                             </div>
                         </div>
 
-                        <div class="space-y-2 pt-1">
-                            <div class="relative h-7">
-                                <div class="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-slate-700"></div>
-                                <div id="barScoreProgresso" class="absolute left-0 top-1/2 h-px -translate-y-1/2 transition-all duration-700" style="width: 0%;">
-                                    <div id="scoreContainer" class="absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 translate-x-1/2 rounded-full border-2 border-slate-950 bg-yellow-400 shadow-lg"></div>
+                        <div class="space-y-2 pt-4">
+                            <div class="relative h-16">
+                                <div class="absolute left-0 right-0 bottom-3 h-px bg-slate-700"></div>
+                                <div id="barScoreProgresso" style="width: 0%;">
+                                    <div id="scoreContainer">
+                                        <span id="lblScoreNumero">--</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-5 text-xs text-slate-400">
