@@ -33,35 +33,35 @@
 
         body {
             background:
-                radial-gradient(circle at 20% 0%, rgba(16, 185, 129, 0.08), transparent 24rem),
-                radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.06), transparent 28rem),
+                radial-gradient(circle at 20% 0%, rgba(16, 185, 129, 0.07), transparent 22rem),
+                radial-gradient(circle at 80% 8%, rgba(14, 165, 233, 0.05), transparent 26rem),
                 #020812;
         }
 
-        .icon-slot{
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            width:18px;
-            height:18px;
-            flex-shrink:0;
-            line-height:1;
+        .icon-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            line-height: 1;
         }
 
         .glass-card {
-            background: rgba(8, 18, 31, 0.78);
-            border: 1px solid rgba(51, 65, 85, 0.68);
-            box-shadow: 0 14px 44px rgba(0, 0, 0, 0.20);
+            background: rgba(8, 18, 31, 0.74);
+            border: 1px solid rgba(51, 65, 85, 0.48);
+            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.16);
             backdrop-filter: blur(16px);
         }
 
         .workspace-card {
             border-radius: 0.75rem;
-            padding: 1.25rem;
+            padding: 1rem;
         }
 
         .workspace-title {
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.025em;
@@ -71,25 +71,25 @@
         .workspace-subtitle {
             font-size: 0.75rem;
             color: #94a3b8;
-            line-height: 1.45;
+            line-height: 1.4;
         }
 
         .workspace-button {
-            height: 2.5rem;
+            height: 2.25rem;
             border-radius: 0.5rem;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-weight: 600;
             transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
         }
 
         .dashboard-navigation-container {
             width: 100%;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.85);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.75);
         }
 
         .dashboard-navigation {
             display: flex;
-            gap: 1.5rem;
+            gap: 1.35rem;
             overflow-x: auto;
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
@@ -104,8 +104,8 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            min-height: 2.75rem;
-            padding: 0.625rem 0.125rem;
+            min-height: 2.5rem;
+            padding: 0.5rem 0.125rem;
             color: #94a3b8;
             font-size: 0.875rem;
             font-weight: 600;
@@ -113,11 +113,19 @@
         }
 
         .dashboard-tab:hover {
-            color: #e2e8f0;
+            color: #ffffff;
+        }
+
+        .dashboard-tab:hover .nav-icon {
+            color: #22c55e;
         }
 
         .dashboard-tab.active {
             color: #ffffff;
+        }
+
+        .dashboard-tab.active .nav-icon {
+            color: #22c55e;
         }
 
         .dashboard-tab.active::after {
@@ -132,71 +140,72 @@
         }
 
         .nav-icon {
-            width: 18px;
-            height: 18px;
+            width: 17px;
+            height: 17px;
             color: currentColor;
             flex-shrink: 0;
+            transition: color 200ms ease;
         }
     </style>
 </head>
 <body class="text-slate-100 font-sans antialiased min-h-screen p-3 sm:p-4">
 
-    <div class="max-w-[1500px] mx-auto space-y-4">
+    <div class="max-w-[1500px] mx-auto space-y-3">
 
         <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-            <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-xl border-2 border-emerald-500 flex items-center justify-center text-emerald-400">
-                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+            <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl border border-emerald-500 flex items-center justify-center text-emerald-400">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div class="leading-none">
-                        <div class="text-2xl font-black tracking-tight text-white">CLIM</div>
-                        <div class="text-2xl font-black tracking-tight text-emerald-500">CARE</div>
+                        <div class="text-xl font-black tracking-tight text-white">CLIM</div>
+                        <div class="text-xl font-black tracking-tight text-emerald-500">CARE</div>
                     </div>
                 </div>
 
-                <div class="hidden lg:block h-10 w-px bg-slate-700"></div>
+                <div class="hidden lg:block h-8 w-px bg-slate-700"></div>
 
-                <div class="text-sm text-slate-200 leading-relaxed">
+                <div class="text-xs text-slate-200 leading-relaxed">
                     <div>Monitoramento Inteligente</div>
                     <div>da Qualidade do Ar Interno</div>
                 </div>
 
-                <div class="hidden lg:block h-10 w-px bg-slate-700"></div>
+                <div class="hidden lg:block h-8 w-px bg-slate-700"></div>
 
-                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300">
                     <span>Dispositivo: <span id="txtDeviceId" class="font-bold text-white">AIRA-0001</span></span>
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-500 text-white text-xs font-bold">Online</span>
-                    <span class="flex items-center gap-2"><i data-lucide="wifi" class="w-4 h-4 text-sky-400"></i> Wi-Fi <span id="txtSignal">-- dBm</span></span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-500 text-white text-[11px] font-bold">Online</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="wifi" class="w-4 h-4 text-sky-400"></i> Wi-Fi <span id="txtSignal">-- dBm</span></span>
                 </div>
 
-                <div class="hidden xl:block h-10 w-px bg-slate-700"></div>
+                <div class="hidden xl:block h-8 w-px bg-slate-700"></div>
 
-                <div class="flex flex-wrap items-center gap-5 text-sm text-slate-300">
-                    <span class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i><span id="txtDataAtual">16/06/2026</span></span>
-                    <span class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i><span id="txtTimestamp">--:--:--</span></span>
+                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300">
+                    <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i><span id="txtDataAtual">16/06/2026</span></span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i><span id="txtTimestamp">--:--:--</span></span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button id="btnAlternarTema" aria-pressed="false" aria-label="Alternar modo de cores" title="Alternar modo de cores" class="glass-card workspace-button px-4 min-w-[104px] flex items-center justify-center gap-2 text-center">
-                    <span id="icoTema" class="icon-slot text-amber-300"><i data-lucide="sun" class="w-5 h-5"></i></span>
-                    <span id="txtTema" class="text-xs font-semibold uppercase text-white">MODO</span>
+                <button id="btnAlternarTema" aria-pressed="false" aria-label="Alternar modo de cores" title="Alternar modo de cores" class="glass-card workspace-button px-3 min-w-[96px] flex items-center justify-center gap-2 text-center hover:bg-slate-800/70">
+                    <span id="icoTema" class="icon-slot text-amber-300"><i data-lucide="sun" class="w-4 h-4"></i></span>
+                    <span id="txtTema" class="text-[11px] font-semibold uppercase text-white">MODO</span>
                 </button>
 
-                <button class="glass-card workspace-button px-4 min-w-[104px] flex items-center justify-center gap-2 text-center">
-                    <span class="relative text-slate-200"><i data-lucide="bell" class="w-5 h-5"></i><span class="absolute -top-2 -right-2 text-[10px] bg-red-600 rounded-full px-1.5 text-white">2</span></span>
-                    <span class="text-xs font-semibold uppercase text-white">ALERTAS</span>
+                <button class="glass-card workspace-button px-3 min-w-[96px] flex items-center justify-center gap-2 text-center hover:bg-slate-800/70">
+                    <span class="relative text-slate-200"><i data-lucide="bell" class="w-4 h-4"></i><span class="absolute -top-2 -right-2 text-[10px] bg-red-600 rounded-full px-1.5 text-white">2</span></span>
+                    <span class="text-[11px] font-semibold uppercase text-white">ALERTAS</span>
                 </button>
 
-                <button class="glass-card workspace-button px-4 min-w-[104px] flex items-center justify-center gap-2 text-center">
-                    <i data-lucide="download" class="w-5 h-5 text-slate-300"></i>
-                    <span class="text-xs font-semibold uppercase text-white">EXPORTAR</span>
+                <button class="glass-card workspace-button px-3 min-w-[96px] flex items-center justify-center gap-2 text-center hover:bg-slate-800/70">
+                    <i data-lucide="download" class="w-4 h-4 text-slate-300"></i>
+                    <span class="text-[11px] font-semibold uppercase text-white">EXPORTAR</span>
                 </button>
 
-                <button class="glass-card workspace-button px-4 min-w-[104px] flex items-center justify-center gap-2 text-center">
-                    <i data-lucide="settings" class="w-5 h-5 text-slate-300"></i>
-                    <span class="text-xs font-semibold uppercase text-white">SISTEMA</span>
+                <button class="glass-card workspace-button px-3 min-w-[96px] flex items-center justify-center gap-2 text-center hover:bg-slate-800/70">
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-300"></i>
+                    <span class="text-[11px] font-semibold uppercase text-white">SISTEMA</span>
                 </button>
             </div>
         </header>
@@ -222,25 +231,25 @@
             </nav>
         </div>
 
-        <section id="view-ambiente" data-view class="space-y-4">
-            <section class="glass-card workspace-card grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <article aria-label="Indicador de Score QAI" class="lg:border-r lg:border-slate-700/70 lg:pr-6">
-                    <div class="flex items-center gap-2 mb-5">
+        <section id="view-ambiente" data-view class="space-y-3">
+            <section class="glass-card workspace-card grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <article aria-label="Indicador de Score QAI" class="lg:border-r lg:border-slate-700/60 lg:pr-5">
+                    <div class="flex items-center gap-2 mb-4">
                         <h2 class="workspace-title">Índice de Qualidade do Ar (QAI)</h2>
-                        <span class="w-5 h-5 rounded-full border border-slate-400 text-slate-300 text-xs flex items-center justify-center">i</span>
+                        <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 items-center">
-                        <p class="text-sm leading-7 text-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-5 items-center">
+                        <p class="text-sm leading-6 text-slate-300">
                             O índice combina diversos parâmetros do ar e os compara com referências da OMS, ANVISA e NBR 17037 para indicar o nível de qualidade do ambiente.
                         </p>
 
-                        <div class="space-y-4">
-                            <div class="relative pt-7">
-                                <div id="scoreContainer" class="absolute left-[35%] -top-1 w-12 h-12 rounded-full bg-slate-200 text-slate-950 border-4 border-slate-400 flex items-center justify-center shadow-xl z-10">
-                                    <span id="lblScoreNumero" class="text-xl font-black">--</span>
+                        <div class="space-y-3">
+                            <div class="relative pt-6">
+                                <div id="scoreContainer" class="absolute left-[35%] -top-1 w-11 h-11 rounded-full bg-slate-200 text-slate-950 border-4 border-slate-400 flex items-center justify-center shadow-xl z-10">
+                                    <span id="lblScoreNumero" class="text-lg font-black">--</span>
                                 </div>
-                                <div class="flex justify-between text-sm text-slate-200 mb-2">
+                                <div class="flex justify-between text-xs text-slate-300 mb-2">
                                     <span>0</span>
                                     <span>25</span>
                                     <span>50</span>
@@ -255,22 +264,22 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-4 text-center text-sm">
+                            <div class="grid grid-cols-4 text-center text-xs">
                                 <div>
                                     <div class="text-emerald-500 font-semibold">BOM</div>
-                                    <div class="text-slate-300 mt-1">0-25</div>
+                                    <div class="text-slate-400 mt-1">0-25</div>
                                 </div>
                                 <div>
                                     <div class="text-yellow-400 font-semibold">MODERADO</div>
-                                    <div class="text-slate-300 mt-1">25-50</div>
+                                    <div class="text-slate-400 mt-1">25-50</div>
                                 </div>
                                 <div>
                                     <div class="text-orange-500 font-semibold">RUIM</div>
-                                    <div class="text-slate-300 mt-1">50-75</div>
+                                    <div class="text-slate-400 mt-1">50-75</div>
                                 </div>
                                 <div>
                                     <div class="text-red-500 font-semibold">CRÍTICO</div>
-                                    <div class="text-slate-300 mt-1">75-100</div>
+                                    <div class="text-slate-400 mt-1">75-100</div>
                                 </div>
                             </div>
 
@@ -279,88 +288,88 @@
                     </div>
                 </article>
 
-                <article id="panelStatusGeral" role="status" class="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-6 items-center">
-                    <div class="space-y-4">
+                <article id="panelStatusGeral" role="status" class="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-5 items-center">
+                    <div class="space-y-3">
                         <h2 class="workspace-title">Conclusão Técnica</h2>
-                        <div class="flex gap-4">
-                            <div class="w-11 h-11 rounded-full border-2 border-yellow-400 text-yellow-400 flex items-center justify-center shrink-0">
-                                <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 rounded-full border border-yellow-400 text-yellow-400 flex items-center justify-center shrink-0">
+                                <i data-lucide="shield-check" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <div id="txtStatusGeral" class="text-lg font-semibold text-yellow-400 mb-2">Qualidade do ar comprometida</div>
-                                <p class="text-sm leading-6 text-slate-200">
+                                <div id="txtStatusGeral" class="text-base font-semibold text-yellow-400 mb-2">Qualidade do ar comprometida</div>
+                                <p class="text-sm leading-6 text-slate-300">
                                     A elevada concentração de partículas finas e a temperatura acima da faixa recomendada estão impactando o conforto e podem provocar efeitos à saúde em médio prazo.
                                 </p>
                             </div>
                         </div>
-                        <button class="workspace-button ml-15 px-6 border border-slate-700 text-white flex items-center gap-6 hover:bg-slate-800/70">
-                            Ver diagnóstico completo <span class="text-xl">›</span>
+                        <button class="workspace-button px-5 border border-slate-700 text-white flex items-center gap-5 hover:bg-slate-800/70">
+                            Ver diagnóstico completo <span class="text-lg">›</span>
                         </button>
                     </div>
 
-                    <div class="rounded-xl border border-slate-700 p-5 text-center">
-                        <div class="workspace-title text-xs mb-3">Nível de Risco</div>
+                    <div class="rounded-xl border border-slate-700/70 p-4 text-center">
+                        <div class="workspace-title text-xs mb-2">Nível de Risco</div>
                         <div class="text-2xl font-black text-orange-500 uppercase">Alto</div>
                     </div>
                 </article>
             </section>
 
-            <section class="grid grid-cols-1 xl:grid-cols-[1.55fr_1fr] gap-4">
-                <div class="space-y-4">
+            <section class="grid grid-cols-1 xl:grid-cols-[1.55fr_1fr] gap-3">
+                <div class="space-y-3">
                     <article class="glass-card workspace-card">
-                        <div class="flex items-center gap-2 mb-4">
+                        <div class="flex items-center gap-2 mb-3">
                             <h2 class="workspace-title">Leituras Atuais</h2>
-                            <span class="w-5 h-5 rounded-full border border-slate-400 text-slate-300 text-xs flex items-center justify-center">i</span>
+                            <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                         </div>
 
                         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" aria-label="Métricas individuais em tempo real">
-                            <article id="cardTemp" class="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-center min-h-[104px]">
-                                <div class="text-red-500 mb-2 flex justify-center"><i data-lucide="thermometer" class="w-7 h-7"></i></div>
-                                <div class="text-2xl font-black text-white" id="valTemperature">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
+                            <article id="cardTemp" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                                <div class="text-red-500 mb-2 flex justify-center"><i data-lucide="thermometer" class="w-6 h-6"></i></div>
+                                <div class="text-xl font-black text-white" id="valTemperature">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
                                 <div id="statusTemp" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-3">Ref.: 20 - 24 °C</div>
+                                <div class="workspace-subtitle mt-2">Ref.: 20 - 24 °C</div>
                             </article>
 
-                            <article id="cardHum" class="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-center min-h-[104px]">
-                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-7 h-7"></i></div>
-                                <div class="text-2xl font-black text-white" id="valHumidity">--.-<span class="text-sm font-light opacity-70"> %</span></div>
+                            <article id="cardHum" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
+                                <div class="text-xl font-black text-white" id="valHumidity">--.-<span class="text-sm font-light opacity-70"> %</span></div>
                                 <div id="statusHum" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-3">Ref.: 40 - 65 %</div>
+                                <div class="workspace-subtitle mt-2">Ref.: 40 - 65 %</div>
                             </article>
 
-                            <article id="cardCO2" class="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-center min-h-[104px]">
-                                <div class="text-slate-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-7 h-7"></i></div>
-                                <div class="text-2xl font-black text-white" id="valCO2">---- <span class="text-sm font-light opacity-70">ppm</span></div>
+                            <article id="cardCO2" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                                <div class="text-slate-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
+                                <div class="text-xl font-black text-white" id="valCO2">---- <span class="text-sm font-light opacity-70">ppm</span></div>
                                 <div id="statusCO2" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-3">Ref.: &lt; 1000 ppm</div>
+                                <div class="workspace-subtitle mt-2">Ref.: &lt; 1000 ppm</div>
                             </article>
 
-                            <article class="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-center min-h-[104px]">
-                                <div class="text-amber-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-7 h-7"></i></div>
-                                <div class="text-2xl font-black text-white">320 <span class="text-sm font-light opacity-70">ppb</span></div>
+                            <article class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                                <div class="text-amber-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
+                                <div class="text-xl font-black text-white">320 <span class="text-sm font-light opacity-70">ppb</span></div>
                                 <div class="mt-2 text-xs font-bold text-slate-300">ATENÇÃO</div>
-                                <div class="workspace-subtitle mt-3">Ref.: &lt; 660 ppb</div>
+                                <div class="workspace-subtitle mt-2">Ref.: &lt; 660 ppb</div>
                             </article>
 
-                            <article id="cardOrvalho" class="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-center min-h-[104px]">
-                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-7 h-7"></i></div>
-                                <div class="text-2xl font-black text-white" id="valPontoOrvalho">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
+                            <article id="cardOrvalho" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
+                                <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
+                                <div class="text-xl font-black text-white" id="valPontoOrvalho">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
                                 <div id="statusOrvalho" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                                <div class="workspace-subtitle mt-3">Risco: Baixo</div>
+                                <div class="workspace-subtitle mt-2">Risco: Baixo</div>
                             </article>
                         </section>
                     </article>
 
-                    <article class="glass-card workspace-card grid grid-cols-[64px_1fr] gap-5 items-center">
-                        <div class="w-16 h-16 rounded-full border border-purple-500/40 text-purple-400 flex items-center justify-center">
-                            <i data-lucide="brain" class="w-9 h-9"></i>
+                    <article class="glass-card workspace-card grid grid-cols-[56px_1fr] gap-4 items-center">
+                        <div class="w-14 h-14 rounded-full border border-purple-500/40 text-purple-400 flex items-center justify-center">
+                            <i data-lucide="brain" class="w-8 h-8"></i>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 mb-2">
                                 <h2 class="workspace-title">Análise Inteligente (Resumo)</h2>
-                                <span class="w-5 h-5 rounded-full border border-slate-400 text-slate-300 text-xs flex items-center justify-center">i</span>
+                                <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                             </div>
-                            <p class="text-sm leading-6 text-slate-100">
+                            <p class="text-sm leading-6 text-slate-200">
                                 A ventilação está adequada (CO₂ dentro da referência). No entanto, a concentração elevada de partículas finas (PM25 e PM4.0) indica a presença de fontes internas de emissão. A temperatura acima da faixa de conforto pode intensificar a percepção de desconforto pelos ocupantes. Recomenda-se agir nas fontes internas e melhorar a climatização.
                             </p>
                         </div>
@@ -368,15 +377,15 @@
                 </div>
 
                 <article class="glass-card workspace-card">
-                    <div class="flex items-center gap-2 mb-4">
+                    <div class="flex items-center gap-2 mb-3">
                         <h2 class="workspace-title">Indicadores de Conforto Humano</h2>
-                        <span class="w-5 h-5 rounded-full border border-slate-400 text-slate-300 text-xs flex items-center justify-center">i</span>
+                        <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                     </div>
 
-                    <section class="bg-slate-950/25 border border-slate-800 rounded-xl p-4 min-h-[160px]">
-                        <div class="rounded-xl border border-slate-800 bg-slate-950/35 p-4 max-w-[260px]">
-                            <div class="flex items-start gap-4">
-                                <span id="icoSintomaFadiga" class="text-purple-500"><i data-lucide="activity" class="w-8 h-8"></i></span>
+                    <section class="bg-slate-950/20 border border-slate-800/80 rounded-xl p-3 min-h-[150px]">
+                        <div class="rounded-xl border border-slate-800/80 bg-slate-950/30 p-3 max-w-[260px]">
+                            <div class="flex items-start gap-3">
+                                <span id="icoSintomaFadiga" class="text-purple-500"><i data-lucide="activity" class="w-7 h-7"></i></span>
                                 <div class="flex-1">
                                     <div class="flex justify-between gap-2 mb-2">
                                         <span class="text-xs font-semibold uppercase tracking-wide text-white">Fadiga & Sonolência</span>
@@ -391,10 +400,10 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                            <div class="rounded-xl border border-slate-800 bg-slate-950/35 p-4">
-                                <div class="flex items-start gap-4">
-                                    <span id="icoSintomaAlergia" class="text-yellow-400"><i data-lucide="leaf" class="w-8 h-8"></i></span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-950/30 p-3">
+                                <div class="flex items-start gap-3">
+                                    <span id="icoSintomaAlergia" class="text-yellow-400"><i data-lucide="leaf" class="w-7 h-7"></i></span>
                                     <div class="flex-1">
                                         <div class="flex justify-between gap-2 mb-2">
                                             <span class="text-xs font-semibold uppercase tracking-wide text-white">Desconforto Alérgico</span>
@@ -409,9 +418,9 @@
                                 </div>
                             </div>
 
-                            <div class="rounded-xl border border-slate-800 bg-slate-950/35 p-4">
-                                <div class="flex items-start gap-4">
-                                    <span id="icoSintomaDesconforto" class="text-red-500"><i data-lucide="activity" class="w-8 h-8"></i></span>
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-950/30 p-3">
+                                <div class="flex items-start gap-3">
+                                    <span id="icoSintomaDesconforto" class="text-red-500"><i data-lucide="activity" class="w-7 h-7"></i></span>
                                     <div class="flex-1">
                                         <div class="flex justify-between gap-2 mb-2">
                                             <span class="text-xs font-semibold uppercase tracking-wide text-white">Desconforto Respiratório</span>
@@ -433,14 +442,14 @@
             <section class="glass-card workspace-card">
                 <div id="panelTriagemMassaQuantidade"></div>
 
-                <div id="alertaInfoCritico" role="alert" class="hidden mt-4 p-3 bg-rose-500/10 dark:bg-rose-500/[0.03] border border-rose-500/20 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 flex items-start gap-3">
+                <div id="alertaInfoCritico" role="alert" class="hidden mt-3 p-3 bg-rose-500/10 dark:bg-rose-500/[0.03] border border-rose-500/20 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 flex items-start gap-3">
                     <span class="text-base shrink-0 mt-0.5 icon-slot" aria-hidden="true"><i data-lucide="activity" class="w-4 h-4"></i></span>
                     <div class="leading-relaxed">
                         <strong class="font-bold">ALERTA DE QUALIDADE AMBIENTAL:</strong> Níveis críticos detectados. Foi identificada uma concentração elevada de partículas ultrafinas em suspensão. Esse comportamento pode indicar redução da qualidade ambiental e recomenda-se verificar a ventilação do ambiente e possíveis fontes de emissão.
                     </div>
                 </div>
 
-                <div class="border-t border-slate-800 pt-4 mt-4 space-y-2">
+                <div class="border-t border-slate-800/80 pt-3 mt-3 space-y-2">
                     <div class="flex flex-wrap gap-2">
                         <button onclick="document.getElementById('helpParticulas').classList.toggle('hidden')" aria-expanded="false" aria-controls="helpParticulas" class="workspace-button px-3 bg-slate-900 text-slate-300 hover:bg-slate-800 flex items-center gap-1.5">
                             <i data-lucide="leaf" class="w-4 h-4"></i> <span>Entendimento de Partículas</span> <span class="opacity-50">▾</span>
@@ -462,56 +471,56 @@
             </section>
 
             <section class="glass-card workspace-card">
-                <div class="flex items-center gap-2 mb-4">
+                <div class="flex items-center gap-2 mb-3">
                     <h2 class="workspace-title">Plano de Mitigação (Ações Recomendadas)</h2>
-                    <span class="w-5 h-5 rounded-full border border-slate-400 text-slate-300 text-xs flex items-center justify-center">i</span>
+                    <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_306px] gap-5 items-center">
-                    <div class="flex items-center gap-4 border-r border-slate-800 pr-5">
-                        <div class="text-emerald-500"><i data-lucide="leaf" class="w-10 h-10"></i></div>
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_280px] gap-4 items-center">
+                    <div class="flex items-center gap-3 border-r border-slate-800/80 pr-4">
+                        <div class="text-emerald-500"><i data-lucide="leaf" class="w-9 h-9"></i></div>
                         <div>
                             <div class="flex items-center gap-3 mb-1">
-                                <span class="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">1</span>
+                                <span class="w-5 h-5 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">1</span>
                                 <h3 class="font-semibold text-white text-sm">Investigar e eliminar fontes internas</h3>
                             </div>
                             <p class="workspace-subtitle">Verifique atividades de limpeza, poeira, equipamentos e materiais.</p>
                         </div>
-                        <span class="text-3xl text-slate-400 ml-auto">›</span>
+                        <span class="text-2xl text-slate-400 ml-auto">›</span>
                     </div>
 
-                    <div class="flex items-center gap-4 border-r border-slate-800 pr-5">
-                        <div class="text-emerald-500"><i data-lucide="wind" class="w-10 h-10"></i></div>
+                    <div class="flex items-center gap-3 border-r border-slate-800/80 pr-4">
+                        <div class="text-emerald-500"><i data-lucide="wind" class="w-9 h-9"></i></div>
                         <div>
                             <div class="flex items-center gap-3 mb-1">
-                                <span class="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">2</span>
+                                <span class="w-5 h-5 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">2</span>
                                 <h3 class="font-semibold text-white text-sm">Melhorar a filtragem do ar</h3>
                             </div>
                             <p class="workspace-subtitle">Utilize filtros HEPA e faça manutenção dos sistemas de climatização.</p>
                         </div>
-                        <span class="text-3xl text-slate-400 ml-auto">›</span>
+                        <span class="text-2xl text-slate-400 ml-auto">›</span>
                     </div>
 
-                    <div class="flex items-center gap-4 border-r border-slate-800 pr-5">
-                        <div class="text-emerald-500"><i data-lucide="thermometer" class="w-10 h-10"></i></div>
+                    <div class="flex items-center gap-3 border-r border-slate-800/80 pr-4">
+                        <div class="text-emerald-500"><i data-lucide="thermometer" class="w-9 h-9"></i></div>
                         <div>
                             <div class="flex items-center gap-3 mb-1">
-                                <span class="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">3</span>
+                                <span class="w-5 h-5 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">3</span>
                                 <h3 class="font-semibold text-white text-sm">Controlar a temperatura</h3>
                             </div>
                             <p class="workspace-subtitle">Mantenha a temperatura dentro da faixa de conforto (20-24 °C).</p>
                         </div>
-                        <span class="text-3xl text-slate-400 ml-auto">›</span>
+                        <span class="text-2xl text-slate-400 ml-auto">›</span>
                     </div>
 
-                    <button class="bg-emerald-600 hover:bg-emerald-500 transition rounded-xl px-6 h-16 flex items-center justify-between gap-4 text-left">
-                        <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                    <button class="bg-emerald-600 hover:bg-emerald-500 transition rounded-xl px-5 h-14 flex items-center justify-between gap-3 text-left">
+                        <i data-lucide="shield-check" class="w-7 h-7 text-white"></i>
                         <span class="font-semibold text-white uppercase leading-5">Abrir Plano de<br>Mitigação Completo</span>
-                        <span class="text-3xl text-white">›</span>
+                        <span class="text-2xl text-white">›</span>
                     </button>
                 </div>
 
-                <div id="panelTriagem" class="space-y-3 mt-5"></div>
+                <div id="panelTriagem" class="space-y-3 mt-4"></div>
             </section>
         </section>
 
