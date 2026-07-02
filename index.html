@@ -57,7 +57,7 @@
 
         .workspace-card {
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 0.9rem;
         }
 
         .workspace-title {
@@ -292,7 +292,7 @@
                         <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 h-[calc(100%-2rem)] items-center">
+                    <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-4 h-[calc(100%-2rem)] items-center">
                         <div class="space-y-3">
                             <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">QAI</div>
                             <p class="text-sm leading-6 text-slate-300">
@@ -329,47 +329,141 @@
                         <span class="w-4 h-4 rounded-full border border-slate-500 text-slate-400 text-[10px] flex items-center justify-center">i</span>
                     </div>
 
-                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" aria-label="Métricas individuais em tempo real">
-                        <article id="cardTemp" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                            <div class="text-red-500 mb-2 flex justify-center"><i data-lucide="thermometer" class="w-6 h-6"></i></div>
-                            <div class="text-xl font-black text-white" id="valTemperature">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
-                            <div id="statusTemp" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                            <div class="workspace-subtitle mt-2">Ref.: 20 - 24 °C</div>
-                        </article>
+                    <section class="space-y-1.5" aria-label="Leituras Atuais">
 
-                        <article id="cardHum" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                            <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
-                            <div class="text-xl font-black text-white" id="valHumidity">--.-<span class="text-sm font-light opacity-70"> %</span></div>
-                            <div id="statusHum" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                            <div class="workspace-subtitle mt-2">Ref.: 40 - 65 %</div>
-                        </article>
+    <article id="cardTemp" class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/20 px-3 py-1.5">
 
-                        <article id="cardCO2" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                            <div class="text-slate-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
-                            <div class="text-xl font-black text-white" id="valCO2">---- <span class="text-sm font-light opacity-70">ppm</span></div>
-                            <div id="statusCO2" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                            <div class="workspace-subtitle mt-2">Ref.: &lt; 1000 ppm</div>
-                        </article>
+        <div class="flex items-center gap-3">
+            <i data-lucide="thermometer" class="w-5 h-5 text-red-500"></i>
 
-                        <article class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                            <div class="text-amber-400 mb-2 flex justify-center"><i data-lucide="wind" class="w-6 h-6"></i></div>
-                            <div class="text-xl font-black text-white">320 <span class="text-sm font-light opacity-70">ppb</span></div>
-                            <div class="mt-2 text-xs font-bold text-slate-300">ATENÇÃO</div>
-                            <div class="workspace-subtitle mt-2">Ref.: &lt; 660 ppb</div>
-                        </article>
+            <div>
+                <div class="text-xs text-slate-400 uppercase">Temperatura</div>
+                <div id="valTemperature" class="text-base font-bold text-white">
+                    --.-<span class="text-xs opacity-60"> °C</span>
+                </div>
+            </div>
+        </div>
 
-                        <article id="cardOrvalho" class="rounded-xl border border-slate-700/70 bg-slate-950/25 p-3 text-center min-h-[96px]">
-                            <div class="text-sky-400 mb-2 flex justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
-                            <div class="text-xl font-black text-white" id="valPontoOrvalho">--.-<span class="text-sm font-light opacity-70"> °C</span></div>
-                            <div id="statusOrvalho" role="status" class="mt-2 text-xs font-bold text-slate-300">Analisando...</div>
-                            <div class="workspace-subtitle mt-2">Risco: Baixo</div>
-                        </article>
-                    </section>
+        <span id="statusTemp"
+            class="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-slate-800 text-slate-300">
+            --
+        </span>
+
+    </article>
+
+    <article id="cardHum" class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/20 px-3 py-1.5">
+
+        <div class="flex items-center gap-3">
+            <i data-lucide="droplets" class="w-5 h-5 text-sky-400"></i>
+
+            <div>
+                <div class="text-xs text-slate-400 uppercase">Umidade</div>
+
+                <div id="valHumidity" class="text-base font-bold text-white">
+                    --.-<span class="text-xs opacity-60"> %</span>
+                </div>
+            </div>
+        </div>
+
+        <span id="statusHum"
+            class="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-slate-800 text-slate-300">
+            --
+        </span>
+
+    </article>
+
+    <article id="cardCO2" class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/20 px-3 py-1.5">
+
+        <div class="flex items-center gap-3">
+
+            <i data-lucide="wind" class="w-5 h-5 text-slate-300"></i>
+
+            <div>
+
+                <div class="text-xs text-slate-400 uppercase">CO₂</div>
+
+                <div id="valCO2" class="text-base font-bold text-white">
+                    ----
+                    <span class="text-xs opacity-60"> ppm</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <span id="statusCO2"
+            class="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-slate-800 text-slate-300">
+            --
+        </span>
+
+    </article>
+
+    <article id="cardTVOC" class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/20 px-3 py-1.5">
+
+        <div class="flex items-center gap-3">
+
+            <i data-lucide="cloud" class="w-5 h-5 text-amber-400"></i>
+
+            <div>
+
+                <div class="text-xs text-slate-400 uppercase">
+                    TVOC
+                </div>
+
+                <div class="text-base font-bold text-white">
+                    320
+                    <span class="text-xs opacity-60"> ppb</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <span
+            class="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-amber-500/20 text-amber-400">
+
+            Atenção
+
+        </span>
+
+    </article>
+
+    <article id="cardOrvalho" class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/20 px-3 py-1.5">
+
+        <div class="flex items-center gap-3">
+
+            <i data-lucide="droplets" class="w-5 h-5 text-cyan-400"></i>
+
+            <div>
+
+                <div class="text-xs text-slate-400 uppercase">
+                    Ponto de Orvalho
+                </div>
+
+                <div id="valPontoOrvalho" class="text-base font-bold text-white">
+                    --.-
+                    <span class="text-xs opacity-60"> °C</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <span id="statusOrvalho"
+            class="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-slate-800 text-slate-300">
+
+            --
+
+        </span>
+
+    </article>
+
+</section>
                 </article>
             </section>
 
             <section id="panelStatusGeral" role="status" class="glass-card workspace-card">
-                <div class="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-5 items-center">
+                <div class="grid grid-cols-1 md:grid-cols-[1fr_130px] gap-4 items-center">
                     <div class="space-y-3">
                         <h2 class="workspace-title">Conclusão Técnica</h2>
                         <div class="flex gap-3">
