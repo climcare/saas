@@ -215,7 +215,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 
-                <main class="lg:col-span-8 space-y-4">
+                <main class="lg:col-span-12 space-y-4">
                     <section class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Métricas individuais em tempo real">
                         <article id="cardTemp" class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-transparent transition-all flex flex-col justify-between min-h-[125px]">
                             <div class="flex justify-between items-start gap-1">
@@ -285,7 +285,10 @@
                     </section>
                 </main>
 
-                <aside class="lg:col-span-4 space-y-4">
+            </div>
+        </section>
+
+        <section id="view-diagnostico" data-view class="hidden">
                     <section class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/60 p-4 rounded-2xl shadow-sm space-y-3.5" aria-label="Indicadores de conforto ocupacional">
                         <div>
                             <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1"><span class="icon-slot" aria-hidden="true">🫁</span> Indicador de Conforto Ambiental</h3>
@@ -331,15 +334,6 @@
                         </h2>
                         <div id="panelTriagem" class="space-y-3"></div>
                     </section>
-                </aside>
-
-            </div>
-        </section>
-
-        <section id="view-diagnostico" data-view class="hidden">
-            <div class="view-placeholder p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-sm text-slate-400 font-medium">
-                Em desenvolvimento
-            </div>
         </section>
 
         <section id="view-evidencias" data-view class="hidden">
